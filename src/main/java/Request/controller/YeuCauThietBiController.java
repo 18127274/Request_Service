@@ -185,6 +185,8 @@ public class YeuCauThietBiController {
 			YeuCauThietBi wfh = mongoTemplate.findOne(q, YeuCauThietBi.class);
 			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
 			// này hay không?
+			System.out.println(wfh.getMaNhanVien());
+			
 			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
 			System.out.println("api: " + uri);
 			RestTemplate restTemplate = new RestTemplate();
@@ -192,32 +194,36 @@ public class YeuCauThietBiController {
 			System.out.println(result);
 			System.out.println(result.getMaTL());
 			System.out.println(manguoiduyet);
+			
+			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			
 			// xét thứ tự các phòng ban duyệt đơn yêu cầu
-			if(wfh.getTrangThai().equals("IT Department is reviewing")) {
-				wfh.setTrangThai("Manager is reviewing");
-				wfh.setMaNguoiDuyet(manguoiduyet);
-				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-			}
-			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getID().equals(manguoiduyet)) {
-				wfh.setTrangThai("Director is reviewing");
-				wfh.setMaNguoiDuyet(manguoiduyet);
-				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-			}
-			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")) {
-				wfh.setTrangThai("Aprroved");
-				wfh.setMaNguoiDuyet(manguoiduyet);
-				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-			}
-			else {
-				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-			}
+//			if(wfh.getTrangThai().equals("IT Department is reviewing")) {
+//				wfh.setTrangThai("Manager is reviewing");
+//				wfh.setMaNguoiDuyet(manguoiduyet);
+//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
+//			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
+//				wfh.setTrangThai("Director is reviewing");
+//				wfh.setMaNguoiDuyet(manguoiduyet);
+//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
+//			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")) {
+//				wfh.setTrangThai("Aprroved");
+//				wfh.setMaNguoiDuyet(manguoiduyet);
+//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
+//			else {
+//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -234,7 +240,7 @@ public class YeuCauThietBiController {
 			YeuCauThietBi wfh = mongoTemplate.findOne(q, YeuCauThietBi.class);
 			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
 			// này hay không?
-			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getID();
+			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
 			System.out.println("api: " + uri);
 			RestTemplate restTemplate = new RestTemplate();
 			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
