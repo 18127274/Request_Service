@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import Request.model.ApiResponse;
 import Request.model.NghiPhep;
+import Request.model.User;
 import Request.model.NhanVien;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
@@ -146,10 +147,13 @@ public class YeuCauThietBiController {
 			List<YeuCauThietBi> wfhlst = new ArrayList<YeuCauThietBi>();
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
-			q.addCriteria(Criteria.where("ID").is(wfh.getID())).addCriteria(Criteria.where("TrangThai").is("IT Department is reviewing"));
+			
+			//q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("TrangThai").is("IT Department is reviewing"));
+			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("").orOperator(Criteria.where("TrangThai").is("IT Department is reviewing"),Criteria.where("TrangThai").is("Manager is reviewing"), Criteria.where("TrangThai").is("Director is reviewing"), Criteria.where("TrangThai").is("Accounting Department is reviewing")));
+			//criteria.orOperator(Criteria.where("A").is(10),Criteria.where("B").is(20));
 			wfhlst = mongoTemplate.find(q, YeuCauThietBi.class);
 
-			System.out.println(wfh.getID());
+			System.out.println(wfh.getMaNhanVien());
 			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty() == true) {
 				System.out.println("khong co thang nhan vien nay");
@@ -158,7 +162,7 @@ public class YeuCauThietBiController {
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Can't request", null);
+			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 
@@ -185,8 +189,6 @@ public class YeuCauThietBiController {
 			YeuCauThietBi wfh = mongoTemplate.findOne(q, YeuCauThietBi.class);
 			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
 			// này hay không?
-			System.out.println(wfh.getMaNhanVien());
-			
 			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
 			System.out.println("api: " + uri);
 			RestTemplate restTemplate = new RestTemplate();
@@ -195,35 +197,47 @@ public class YeuCauThietBiController {
 			System.out.println(result.getMaTL());
 			System.out.println(manguoiduyet);
 			
-			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
-			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			// kiểm tra xem chức vụ của người duyệt đơn này, (phòng it: 1, ban giám đốc: 5, phòng kế toán: 3)
+			final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + manguoiduyet;
+			System.out.println("api: " + uri1);
+			RestTemplate restTemplate1 = new RestTemplate();
+			User result1 = restTemplate.getForObject(uri1, User.class);
 			
-			// xét thứ tự các phòng ban duyệt đơn yêu cầu
-//			if(wfh.getTrangThai().equals("IT Department is reviewing")) {
-//				wfh.setTrangThai("Manager is reviewing");
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
-//				wfh.setTrangThai("Director is reviewing");
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")) {
-//				wfh.setTrangThai("Aprroved");
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//			else {
-//				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
+			System.out.println(result1.getChucVu());
+			
+			
+			if(wfh.getTrangThai().equals("IT Department is reviewing") && result1.getChucVu() == 1) {
+				wfh.setTrangThai("Manager is reviewing");
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
+				wfh.setTrangThai("Director is reviewing");
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			else if(wfh.getTrangThai().equals("Director is reviewing")  && result1.getChucVu() == 5 ) {
+				wfh.setTrangThai("Accounting Department is reviewing");
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			else if(wfh.getTrangThai().equals("Accounting Department is reviewing") && result1.getChucVu() == 3) {
+				wfh.setTrangThai("Aprroved");
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			else {
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Order_id wrong or Reviewer_id not valid", null);
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -244,8 +258,19 @@ public class YeuCauThietBiController {
 			System.out.println("api: " + uri);
 			RestTemplate restTemplate = new RestTemplate();
 			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
+			
+			// kiểm tra xem chức vụ của người duyệt đơn này, (phòng it: 1, ban giám đốc: 5, phòng kế toán: 3)
+			final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + manguoiduyet;
+			System.out.println("api: " + uri1);
+			RestTemplate restTemplate1 = new RestTemplate();
+			User result1 = restTemplate.getForObject(uri1, User.class);
+			
+			System.out.println(result1.getChucVu());
+			System.out.println(result.getMaTL());
+			System.out.println(wfh.getTrangThai());
+			
 			//Xét các trường hợp các phòng ban duyệt đơn
-			if(wfh.getTrangThai().equals("IT Department is reviewing")) {
+			if(wfh.getTrangThai().equals("IT Department is reviewing")  && result1.getChucVu() == 1) {
 				wfh.setTrangThai("Not Approved");
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
@@ -253,7 +278,7 @@ public class YeuCauThietBiController {
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getID().equals(manguoiduyet)) {
+			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
 				wfh.setTrangThai("Not Approved");
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
@@ -261,7 +286,14 @@ public class YeuCauThietBiController {
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")) {
+			else if(wfh.getTrangThai().equals("Director is reviewing")  && result1.getChucVu() == 5) {
+				wfh.setTrangThai("Accounting Department is reviewing");
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")  && result1.getChucVu() == 3) {
 				wfh.setTrangThai("Not Approved");
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);

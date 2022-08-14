@@ -214,7 +214,7 @@ public class NghiPhepController {
 				ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Can't request", null);
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
