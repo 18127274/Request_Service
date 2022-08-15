@@ -62,7 +62,7 @@ public class NghiPhepController {
 	
 	
 	// lay ra danh sach tat ca yeu cau nghi phep 
-	@GetMapping("/view_all_list_request_nghiphep")
+	@GetMapping("/get_all_list_request_nghiphep")
 	public ResponseEntity<ApiResponse<List<NghiPhep>>> View_all_list_request_nghiphep() {
 		try {
 			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
@@ -82,8 +82,35 @@ public class NghiPhepController {
 		}
 	}
 	
+	// lay ra danh sach tat ca yeu cau nghi phep cua nhan vien 
+	@GetMapping("/get_all_list_request_nghiphep_of_staff/{MaNV_input}")
+	public ResponseEntity<ApiResponse<List<NghiPhep>>> View_all_list_request_nghiphep_of_staff(
+			@PathVariable(value = "MaNV_input") String MaNV_input) {
+		try {
+			System.out.println(MaNV_input);
+
+			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
+
+			wfhlst = mongoTemplate.find(q, NghiPhep.class);
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Request is empty!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+				//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	
+	
+	
 	// lay ra danh sach tat ca yeu cau nghi phep thông qua trạng thái  
-	@GetMapping("/view_all_list_request_nghiphep_by_status/{status}")
+	@GetMapping("/get_all_list_request_nghiphep_by_status/{status}")
 	public ResponseEntity<ApiResponse<List<NghiPhep>>> View_all_list_request_nghiphep_by_status(@PathVariable(value = "status") String status) {
 		try {
 

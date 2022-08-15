@@ -51,7 +51,7 @@ public class WFHController {
 	MongoOperations mongoOperation;
 
 	// lay ra danh sach tat ca yeu cau wfh @RequestBody WFH wfh
-	@GetMapping("/view_all_list_request_wfh")
+	@GetMapping("/get_all_list_request_wfh")
 	public ResponseEntity<ApiResponse<List<WFH>>> View_all_list_request_wfh() {
 		try {
 			List<WFH> wfhlst = new ArrayList<WFH>();
@@ -70,7 +70,28 @@ public class WFHController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	// lấy ra tat ca đơn yêu cầu wfh thông qua mã nhân viên.
+	@GetMapping("/get_all_list_wfh_by_staff_id/{MaNV_input}")
+	public ResponseEntity<ApiResponse<List<WFH>>> Get_all_list_wfh_by_staff_id(
+			@PathVariable(value = "MaNV_input") String MaNV_input) {
 
+		try {
+			List<WFH> wfhlst = new ArrayList<WFH>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
+			wfhlst = mongoTemplate.find(q, WFH.class);
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Request is empty!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	// lấy ra đơn yêu cầu wfh thông qua mã đơn.
 	@GetMapping("/get_wfh_id/{MaWFH_input}")
 	public ResponseEntity<ApiResponse<List<WFH>>> Get_wfh_id(@PathVariable(value = "MaWFH_input") String MaWFH_input) {
