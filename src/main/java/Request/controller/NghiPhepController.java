@@ -59,7 +59,51 @@ public class NghiPhepController {
 	MongoTemplate mongoTemplate;
 	@Autowired
 	MongoOperations mongoOperation;
+	
+	
+	// lay ra danh sach tat ca yeu cau nghi phep 
+	@GetMapping("/view_all_list_request_nghiphep")
+	public ResponseEntity<ApiResponse<List<NghiPhep>>> View_all_list_request_nghiphep() {
+		try {
+			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
 
+			repoNP.findAll().forEach(wfhlst::add);
+
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Request is empty!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+				
+			}
+
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	// lay ra danh sach tat ca yeu cau nghi phep thông qua trạng thái  
+	@GetMapping("/view_all_list_request_nghiphep_by_status/{status}")
+	public ResponseEntity<ApiResponse<List<NghiPhep>>> View_all_list_request_nghiphep_by_status(@PathVariable(value = "status") String status) {
+		try {
+
+			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("TrangThai").is(status));
+
+			wfhlst = mongoTemplate.find(q, NghiPhep.class);
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Status fomart wrong!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+				//return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
 	// lấy ra đơn yêu cầu nghi phép thông qua mã đơn.
 	@GetMapping("/get_np_id/{MaNP_input}")
 	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_np_id(
