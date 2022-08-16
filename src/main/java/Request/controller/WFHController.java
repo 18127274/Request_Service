@@ -39,7 +39,7 @@ import Request.repository.ThamGiaDuAnRepository;
 import Request.repository.WFHRepository;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class WFHController {
