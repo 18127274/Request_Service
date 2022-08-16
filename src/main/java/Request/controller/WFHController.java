@@ -54,6 +54,7 @@ public class WFHController {
 	@GetMapping("/get_all_list_request_wfh")
 	public ResponseEntity<ApiResponse<List<WFH>>> View_all_list_request_wfh() {
 		try {
+			
 			List<WFH> wfhlst = new ArrayList<WFH>();
 
 			repoWFH.findAll().forEach(wfhlst::add);
@@ -71,6 +72,8 @@ public class WFHController {
 		}
 	}
 	
+	
+	
 	// lấy ra tat ca đơn yêu cầu wfh thông qua mã nhân viên.
 	@GetMapping("/get_all_list_wfh_by_staff_id/{MaNV_input}")
 	public ResponseEntity<ApiResponse<List<WFH>>> Get_all_list_wfh_by_staff_id(
@@ -81,6 +84,9 @@ public class WFHController {
 			Query q = new Query();
 			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 			wfhlst = mongoTemplate.find(q, WFH.class);
+			
+			System.out.println(MaNV_input);
+			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty()) {
 				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Request is empty!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
