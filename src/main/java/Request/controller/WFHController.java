@@ -126,7 +126,7 @@ public class WFHController {
 		try {
 			List<WFH> wfhlst = new ArrayList<WFH>();
 			Query q = new Query();
-			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input)).addCriteria(Criteria.where("TrangThai").is("Pending"));
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 			wfhlst = mongoTemplate.find(q, WFH.class);
 			if (wfhlst.isEmpty()) {
 				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Id staff wrong or this order_wfh is not available!", null);
@@ -171,7 +171,7 @@ public class WFHController {
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is("Pending"));
+					.addCriteria(Criteria.where("TrangThai").is("0"));
 			wfhlst = mongoTemplate.find(q, WFH.class);
 
 			System.out.println(wfh.getMaNhanVien());
@@ -180,7 +180,7 @@ public class WFHController {
 				System.out.println("khong co thang nhan vien nay");
 				wfh.setID(UUID.randomUUID().toString());
 				WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau().plusDays(1),
-						wfh.getNgayKetThuc().plusDays(1), wfh.getLyDo(), "", "Pending"));
+						wfh.getNgayKetThuc().plusDays(1), wfh.getLyDo(), "", 0));
 				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
@@ -220,7 +220,7 @@ public class WFHController {
 			System.out.println(manguoiduyet);
 
 			if (result != null && result.getMaTL().equals(manguoiduyet)) {
-				wfh.setTrangThai("Approved");
+				wfh.setTrangThai(1);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
@@ -250,7 +250,7 @@ public class WFHController {
 			RestTemplate restTemplate = new RestTemplate();
 			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 			if (result != null && result.getMaTL().equals(manguoiduyet)) {
-				wfh.setTrangThai("Not Approved");
+				wfh.setTrangThai(2);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
 				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));

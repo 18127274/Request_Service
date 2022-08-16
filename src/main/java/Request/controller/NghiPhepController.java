@@ -162,7 +162,7 @@ public class NghiPhepController {
 
 			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
 			Query q = new Query();
-			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input)).addCriteria(Criteria.where("TrangThai").is("Pending"));
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 
 			wfhlst = mongoTemplate.find(q, NghiPhep.class);
 			if (wfhlst.isEmpty()) {
@@ -260,7 +260,7 @@ public class NghiPhepController {
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is("Pending"));
+					.addCriteria(Criteria.where("TrangThai").is("0"));
 			wfhlst = mongoTemplate.find(q, NghiPhep.class);
 			System.out.println("rong hay k tren: " + wfhlst.isEmpty());
 			
@@ -281,7 +281,7 @@ public class NghiPhepController {
 				System.out.println("khong co thang nhan vien nay");
 				np.setID(UUID.randomUUID().toString());
 				NghiPhep _np = repoNP.save(new NghiPhep(np.getID(), "", np.getMaNhanVien(), np.getLoaiNghiPhep(),
-						np.getNgayBatDau().plusDays(1), np.getNgayKetThuc().plusDays(1), np.getLyDo(), "", "Pending"));
+						np.getNgayBatDau().plusDays(1), np.getNgayKetThuc().plusDays(1), np.getLyDo(), "", 1));
 				ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
@@ -310,8 +310,8 @@ public class NghiPhepController {
 
 			System.out.println("trang thai: " + np.getTrangThai());
 			System.out.println("So Phep con lai: " + result_staff.getSoPhepConLai());
-			System.out.println(np.getTrangThai().equals("Pending"));
-			if (np.getTrangThai().equals("Pending") == true) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
+			System.out.println(np.getTrangThai() == 0);
+			if (np.getTrangThai() == 0) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
 				System.out.println(
 						"so ngay nghi phep: " + Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()));
 
@@ -335,7 +335,7 @@ public class NghiPhepController {
 																					// đúng là manager cấp 2 của staff
 																					// đó hay k?
 						// result.getMaTL().equals(manguoiduyet)
-						np.setTrangThai("Approved");
+						np.setTrangThai(1);
 						np.setMaNguoiDuyet(manguoiduyet);
 						result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số ngày nghỉ phép còn lại
 						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
@@ -366,7 +366,7 @@ public class NghiPhepController {
 																					// tồn
 																					// tại k và mã người duyệt đúng là
 																				// manager cấp 1 của staff đó hay k?
-						np.setTrangThai("Approved");
+						np.setTrangThai(1);
 						np.setMaNguoiDuyet(manguoiduyet);
 						//result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số ngày nghỉ phép còn lại
 						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
@@ -423,8 +423,8 @@ public class NghiPhepController {
 			
 			System.out.println("trang thai: " + np.getTrangThai());
 			System.out.println("So Phep con lai: " + result_staff.getSoPhepConLai());
-			System.out.println(np.getTrangThai().equals("Pending"));
-			if (np.getTrangThai().equals("Pending") == true) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
+			System.out.println(np.getTrangThai() == 0);
+			if (np.getTrangThai() == 0) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
 				System.out.println("so ngay nghi phep: " + Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()));
 
 				if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) > 3) {
@@ -444,7 +444,7 @@ public class NghiPhepController {
 																					// đúng là manager cấp 2 của staff
 																					// đó hay k?
 						// result.getMaTL().equals(manguoiduyet)
-						np.setTrangThai("Not Approved");
+						np.setTrangThai(2);
 						np.setMaNguoiDuyet(manguoiduyet);
 						np.setLyDoTuChoi(lydotuchoi);
 						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
@@ -469,7 +469,7 @@ public class NghiPhepController {
 																					// tồn
 																					// tại k và mã người duyệt đúng là
 																					// manager cấp 1 của staff đó hay k?
-						np.setTrangThai("Not Approved");
+						np.setTrangThai(2);
 						np.setMaNguoiDuyet(manguoiduyet);
 						np.setLyDoTuChoi(lydotuchoi);
 						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));

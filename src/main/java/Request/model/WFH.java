@@ -26,7 +26,7 @@ public class WFH {
 	private LocalDate NgayKetThuc;
 	private String LyDo;
 	private String LyDoTuChoi;
-	private String TrangThai;
+	private int TrangThai;
 
 	public String getID() {
 		return ID;
@@ -84,16 +84,16 @@ public class WFH {
 		LyDoTuChoi = lyDoTuChoi;
 	}
 
-	public String getTrangThai() {
+	public int getTrangThai() {
 		return TrangThai;
 	}
 
-	public void setTrangThai(String trangThai) {
+	public void setTrangThai(int trangThai) {
 		TrangThai = trangThai;
 	}
 
 	public WFH(String iD, String maNguoiDuyet, String maNhanVien, LocalDate ngayBatDau, LocalDate ngayKetThuc,
-			String lyDo, String lyDoTuChoi, String trangThai) {
+			String lyDo, String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;
 		MaNguoiDuyet = maNguoiDuyet;

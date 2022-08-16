@@ -18,7 +18,7 @@ public class NghiPhep {
 	private LocalDate NgayKetThuc;
 	private String LyDo;
 	private String LyDoTuChoi;
-	private String TrangThai;
+	private int TrangThai;
 
 	public String getID() {
 		return ID;
@@ -84,16 +84,16 @@ public class NghiPhep {
 		LyDoTuChoi = lyDoTuChoi;
 	}
 
-	public String getTrangThai() {
+	public int getTrangThai() {
 		return TrangThai;
 	}
 
-	public void setTrangThai(String trangThai) {
+	public void setTrangThai(int trangThai) {
 		TrangThai = trangThai;
 	}
 
 	public NghiPhep(String iD, String maNguoiDuyet, String maNhanVien, String loaiNghiPhep, LocalDate ngayBatDau,
-			LocalDate ngayKetThuc, String lyDo, String lyDoTuChoi, String trangThai) {
+			LocalDate ngayKetThuc, String lyDo, String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;
 		MaNguoiDuyet = maNguoiDuyet;
@@ -110,10 +110,6 @@ public class NghiPhep {
 //		Period period = Period.between(dateBefore, dateAfter);
 //		long daysDiff = Math.abs(period.getDays());
 //	}
-
-	public void Caculatebetweentwoday() {
-		System.out.println(" The number of days between dates: ");
-	}
 
 	public NghiPhep() {
 		super();

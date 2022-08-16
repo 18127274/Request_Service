@@ -103,6 +103,7 @@ public class YeuCauThietBiController {
 		try {
 			List<YeuCauThietBi> wfhlst = new ArrayList<YeuCauThietBi>();
 			Query q = new Query();
+			
 			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 			wfhlst = mongoTemplate.find(q, YeuCauThietBi.class);
 			if (wfhlst.isEmpty()) {
@@ -149,7 +150,7 @@ public class YeuCauThietBiController {
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			
 			//q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("TrangThai").is("IT Department is reviewing"));
-			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("").orOperator(Criteria.where("TrangThai").is("IT Department is reviewing"),Criteria.where("TrangThai").is("Manager is reviewing"), Criteria.where("TrangThai").is("Director is reviewing"), Criteria.where("TrangThai").is("Accounting Department is reviewing")));
+			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("").orOperator(Criteria.where("TrangThai").is(1),Criteria.where("TrangThai").is(4), Criteria.where("TrangThai").is(5), Criteria.where("TrangThai").is(3)));
 			//criteria.orOperator(Criteria.where("A").is(10),Criteria.where("B").is(20));
 			wfhlst = mongoTemplate.find(q, YeuCauThietBi.class);
 
@@ -158,7 +159,7 @@ public class YeuCauThietBiController {
 			if (wfhlst.isEmpty() == true) {
 				System.out.println("khong co thang nhan vien nay");
 				wfh.setID(UUID.randomUUID().toString());
-				YeuCauThietBi _wfh = repoYCTB.save(new YeuCauThietBi(wfh.getID(), wfh.getMaNhanVien(), wfh.getMoTa(), wfh.getChiPhi(), wfh.getSoLuong(), "" , "", "IT Department is reviewing"));
+				YeuCauThietBi _wfh = repoYCTB.save(new YeuCauThietBi(wfh.getID(), wfh.getMaNhanVien(), wfh.getMoTa(), wfh.getChiPhi(), wfh.getSoLuong(), "" , "", 1));
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
@@ -206,29 +207,29 @@ public class YeuCauThietBiController {
 			System.out.println(result1.getChucVu());
 			
 			
-			if(wfh.getTrangThai().equals("IT Department is reviewing") && result1.getChucVu() == 1) {
-				wfh.setTrangThai("Manager is reviewing");
+			if(wfh.getTrangThai() == 1 && result1.getChucVu() == 1) {
+				wfh.setTrangThai(4);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
-				wfh.setTrangThai("Director is reviewing");
+			else if(wfh.getTrangThai() == 4 && result.getMaTL().equals(manguoiduyet)) {
+				wfh.setTrangThai(5);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Director is reviewing")  && result1.getChucVu() == 5 ) {
-				wfh.setTrangThai("Accounting Department is reviewing");
+			else if(wfh.getTrangThai() == 5  && result1.getChucVu() == 5 ) {
+				wfh.setTrangThai(3);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Accounting Department is reviewing") && result1.getChucVu() == 3) {
-				wfh.setTrangThai("Aprroved");
+			else if(wfh.getTrangThai() == 3 && result1.getChucVu() == 3) {
+				wfh.setTrangThai(2);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
@@ -270,31 +271,31 @@ public class YeuCauThietBiController {
 			System.out.println(wfh.getTrangThai());
 			
 			//Xét các trường hợp các phòng ban duyệt đơn
-			if(wfh.getTrangThai().equals("IT Department is reviewing")  && result1.getChucVu() == 1) {
-				wfh.setTrangThai("Not Approved");
+			if(wfh.getTrangThai() == 1  && result1.getChucVu() == 1) {
+				wfh.setTrangThai(0);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Manager is reviewing") && result.getMaTL().equals(manguoiduyet)) {
-				wfh.setTrangThai("Not Approved");
+			else if(wfh.getTrangThai() == 4 && result.getMaTL().equals(manguoiduyet)) {
+				wfh.setTrangThai(0);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Director is reviewing")  && result1.getChucVu() == 5) {
-				wfh.setTrangThai("Accounting Department is reviewing");
+			else if(wfh.getTrangThai() == 5  && result1.getChucVu() == 5) {
+				wfh.setTrangThai(0);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));
 				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(wfh.getTrangThai().equals("Accounting Department is reviewing")  && result1.getChucVu() == 3) {
-				wfh.setTrangThai("Not Approved");
+			else if(wfh.getTrangThai() == 3  && result1.getChucVu() == 3) {
+				wfh.setTrangThai(0);
 				wfh.setMaNguoiDuyet(manguoiduyet);
 				wfh.setLyDoTuChoi(lydotuchoi);
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", repoYCTB.save(wfh));

@@ -14,7 +14,7 @@ public class YeuCauThietBi {
 	private float SoLuong;
 	private String MaNguoiDuyet;
 	private String LyDoTuChoi;
-	private String TrangThai;
+	private int TrangThai;
 
 
 
@@ -78,11 +78,11 @@ public class YeuCauThietBi {
 		LyDoTuChoi = lyDoTuChoi;
 	}
 
-	public String getTrangThai() {
+	public int getTrangThai() {
 		return TrangThai;
 	}
 
-	public void setTrangThai(String trangThai) {
+	public void setTrangThai(int trangThai) {
 		TrangThai = trangThai;
 	}
 	
@@ -91,7 +91,7 @@ public class YeuCauThietBi {
 
 
 	public YeuCauThietBi(String iD, String maNhanVien, String moTa, float chiPhi, float soLuong, String maNguoiDuyet,
-			String lyDoTuChoi, String trangThai) {
+			String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;
 		MaNhanVien = maNhanVien;
