@@ -47,7 +47,7 @@ import java.util.Date;
 import java.time.Period;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class NghiPhepController {

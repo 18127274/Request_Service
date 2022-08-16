@@ -30,7 +30,7 @@ import Request.repository.OTRepository;
 import Request.repository.WFHRepository;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class OTController {

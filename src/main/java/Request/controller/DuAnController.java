@@ -40,7 +40,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class DuAnController {

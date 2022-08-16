@@ -39,7 +39,7 @@ import Request.repository.NhanVienRepository;
 import Request.repository.OTRepository;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class CheckInOutController {

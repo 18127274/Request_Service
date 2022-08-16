@@ -43,7 +43,7 @@ import Request.repository.YeuCauThietBiRepository;
 
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping(value = "/api")
 
 public class YeuCauThietBiController {
