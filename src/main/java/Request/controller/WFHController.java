@@ -171,7 +171,7 @@ public class WFHController {
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is("0"));
+					.addCriteria(Criteria.where("TrangThai").is(0));
 			wfhlst = mongoTemplate.find(q, WFH.class);
 
 			System.out.println(wfh.getMaNhanVien());

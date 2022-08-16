@@ -260,7 +260,7 @@ public class NghiPhepController {
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is("0"));
+					.addCriteria(Criteria.where("TrangThai").is(0));
 			wfhlst = mongoTemplate.find(q, NghiPhep.class);
 			System.out.println("rong hay k tren: " + wfhlst.isEmpty());
 			
