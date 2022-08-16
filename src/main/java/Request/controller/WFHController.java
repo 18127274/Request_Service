@@ -142,13 +142,16 @@ public class WFHController {
 	// lấy ra đơn yêu cầu wfh theo trangthai (trangthai = 0: chờ xét duyệt, 1: đã
 	// xét duyệt, 2: từ chối).
 	@GetMapping("/get_wfh_by_status/{status}")
-	public ResponseEntity<ApiResponse<List<WFH>>> Get_wfh_by_status(@PathVariable(value = "status") String status) {
+	public ResponseEntity<ApiResponse<List<WFH>>> Get_wfh_by_status(@PathVariable(value = "status") int status) {
 
 		try {
 			List<WFH> wfhlst = new ArrayList<WFH>();
 			Query q = new Query();
 			q.addCriteria(Criteria.where("TrangThai").is(status));
 			wfhlst = mongoTemplate.find(q, WFH.class);
+			
+			System.out.println(status);
+			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty()) {
 				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Status format wrong or order wfh does not exist!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
@@ -173,7 +176,7 @@ public class WFHController {
 			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
 					.addCriteria(Criteria.where("TrangThai").is(0));
 			wfhlst = mongoTemplate.find(q, WFH.class);
-
+			
 			System.out.println(wfh.getMaNhanVien());
 			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty() == true) {
