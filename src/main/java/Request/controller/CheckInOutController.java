@@ -190,7 +190,7 @@ public class CheckInOutController {
 					return new ResponseEntity<>(resp, HttpStatus.CREATED);
 				}
 			}
-
+			//test
 			String ID = UUID.randomUUID().toString();
 			Check_in_out _check_in = repoCheckIn.save(new Check_in_out(ID, MaNV_input));
 			_check_in.setGioBatDau(_check_in.getGioBatDau().minusHours(7));

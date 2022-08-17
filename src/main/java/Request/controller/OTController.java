@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import Request.model.ApiResponse;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
-import Request.model.List_request;
+import Request.model.approve_ot;
 import Request.model.List_ThamGiaDuAn;
 import Request.repository.NghiPhepRepository;
 import Request.repository.NhanVienRepository;
@@ -127,8 +127,47 @@ public class OTController {
 		}
 	}
 
+//	@PutMapping("/approve_ot")
+//	public ResponseEntity<ApiResponse<List<OT>>> approve_ot(@RequestBody approve_ot approve
+////			@RequestParam("MaOT_input") String MaOT_input,
+////			@RequestParam("TinhTrang_input") String TinhTrang_input,
+////			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
+////			@RequestParam("MaNguoiDuyet_input") String MaNguoiDuyet_input
+//			){
+//		try {
+//			if(approve.getAction().equals("REJECT") && (approve.getReason().equals("") || approve.getReason() == null)) {
+//				ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Invalid reason", null);
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
+//			for (String request_id : approve.getList_id_request()) {
+//				//Find request 
+//				Query q = new Query();
+//				q.addCriteria(Criteria.where("ID").is(request_id));
+//				OT ot = mongoTemplate.findOne(q, OT.class);
+//				//Validate manager authority
+//				String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/" + ot.getMaNhanVien();
+//				RestTemplate restTemplate = new RestTemplate();
+//				ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
+//				
+//				if(manager.getID() != null && manager.getMaTL().equals(accept.getMaNguoiDuyet())) {
+//					ot.setLyDoTuChoi(accept.getLyDoTuChoi());
+//					ot.setTrangThai(accept.getTrangThai());
+//					ot.setMaNguoiDuyet(accept.getMaNguoiDuyet());
+//					ApiResponse<OT> resp = new ApiResponse<OT>(0, "Success", repoOT.save(ot));
+//					return new ResponseEntity<>(resp, HttpStatus.OK);
+//				}
+//			}
+//			
+//			ApiResponse<OT> resp = new ApiResponse<OT>(1, "invalid input or NguoiDuyet don't have permission", null);
+//			return new ResponseEntity<>(resp, HttpStatus.OK);
+//		} catch (Exception e) {
+//			ApiResponse<OT> resp = new ApiResponse<OT>(1, "Internal error", null);
+//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//		}
+//	}
+	
 	@PutMapping("/accept_ot")
-	public ResponseEntity<ApiResponse<OT>> TiepNhanOT(@RequestBody OT accept
+	public ResponseEntity<ApiResponse<OT>> accept_ot(@RequestBody OT accept
 //			@RequestParam("MaOT_input") String MaOT_input,
 //			@RequestParam("TinhTrang_input") String TinhTrang_input,
 //			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
