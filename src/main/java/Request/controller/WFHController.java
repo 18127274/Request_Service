@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import Request.model.ApiResponse;
+import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.NhanVien;
 import Request.model.OT;
@@ -288,6 +289,46 @@ public class WFHController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	
+	@GetMapping("/get_all_list_wfh_of_manager1")
+	public ResponseEntity<ApiResponse<List<WFH>>> Get_all_list_wfh_of_manager1(@RequestParam("id_lead") String id_lead_input,
+			@RequestParam("status") int status_input) {
+		try {
+			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
+			RestTemplate restTemplate = new RestTemplate();
+			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
+			List<ThamGiaDuAn> staff = call.getListstaff();
+			
+			if (status_input<0 || status_input>2) {
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "invalid status", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			
+			List<WFH> otlst = new ArrayList<WFH>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("TrangThai").is(status_input));
+			otlst = mongoTemplate.find(q, WFH.class);
+			if (otlst.isEmpty()) {
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Empty data", otlst);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			List<WFH> result = new ArrayList<WFH>();
+			for (WFH i : otlst) {
+				for (ThamGiaDuAn y : staff) {
+					if(i.getMaNhanVien().equals(y.getMaNV())) {
+						result.add(i);
+					}
+				}
+			}
+			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", result);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "ID lead not exist", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		}
+	}
+	
 
 	// team leader từ chối đơn yêu cầu .
 //	@PutMapping("/reject_request_wfh")

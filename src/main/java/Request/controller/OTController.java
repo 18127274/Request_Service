@@ -188,7 +188,7 @@ public class OTController {
 			List<ThamGiaDuAn> staff = call.getListstaff();
 			
 			if (status_input<0 || status_input>2) {
-				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "invalid status", null);
+				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(1, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
@@ -197,7 +197,7 @@ public class OTController {
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, OT.class);
 			if (otlst.isEmpty()) {
-				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Empty data", otlst);
+				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(1, "Empty data", otlst);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			List<OT> result = new ArrayList<OT>();
