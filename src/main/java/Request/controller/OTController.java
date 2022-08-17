@@ -128,7 +128,7 @@ public class OTController {
 	}
 
 	@PutMapping("/accept_ot")
-	public ResponseEntity<ApiResponse<OT>> TiepNhanOT(@RequestBody OT accept 
+	public ResponseEntity<ApiResponse<OT>> TiepNhanOT(@RequestBody OT accept
 //			@RequestParam("MaOT_input") String MaOT_input,
 //			@RequestParam("TinhTrang_input") String TinhTrang_input,
 //			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
@@ -179,21 +179,22 @@ public class OTController {
 	}
 	
 	@GetMapping("/list_ot_manager")
-	public ResponseEntity<ApiResponse<List<OT>>> list_ot_manager(@RequestBody List_request input) {
+	public ResponseEntity<ApiResponse<List<OT>>> list_ot_manager(@RequestParam("id_lead") String id_lead_input,
+			@RequestParam("status") int status_input) {
 		try {
-			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + input.getId_lead();
+			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
 			RestTemplate restTemplate = new RestTemplate();
 			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
 			List<ThamGiaDuAn> staff = call.getListstaff();
 			
-			if (input.getStatus()<0 || input.getStatus() >2) {
+			if (status_input<0 || status_input>2) {
 				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
 			List<OT> otlst = new ArrayList<OT>();
 			Query q = new Query();
-			q.addCriteria(Criteria.where("TrangThai").is(input.getStatus()));
+			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, OT.class);
 			if (otlst.isEmpty()) {
 				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Empty data", otlst);
