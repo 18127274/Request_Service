@@ -136,6 +136,10 @@ public class NghiPhepController {
 					}
 				}
 			}
+			if(result.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
@@ -199,6 +203,10 @@ public class NghiPhepController {
 						result.add(i);
 					}
 				}
+			}
+			if(result.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
