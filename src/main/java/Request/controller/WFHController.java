@@ -301,7 +301,7 @@ public class WFHController {
 			List<ThamGiaDuAn> staff = call.getListstaff();
 			
 			if (status_input<0 || status_input>2) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "invalid status", null);
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
@@ -310,7 +310,7 @@ public class WFHController {
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, WFH.class);
 			if (otlst.isEmpty()) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Empty data", otlst);
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Empty data", otlst);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			List<WFH> result = new ArrayList<WFH>();

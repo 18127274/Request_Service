@@ -116,7 +116,7 @@ public class NghiPhepController {
 			List<ThamGiaDuAn> staff = call.getListstaff();
 			
 			if (status_input<0 || status_input>2) {
-				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
@@ -125,13 +125,52 @@ public class NghiPhepController {
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, NghiPhep.class);
 			if (otlst.isEmpty()) {
-				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Empty data", otlst);
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			List<NghiPhep> result = new ArrayList<NghiPhep>();
 			for (NghiPhep i : otlst) {
 				for (ThamGiaDuAn y : staff) {
-					if(i.getMaNhanVien().equals(y.getMaNV())) {
+					if(i.getMaNhanVien().equals(y.getMaNV()) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) <= 3) {
+						result.add(i);
+					}
+				}
+			}
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "ID lead not exist", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		}
+	}
+	
+	//lay ra danh sach nhung don yeu cau ma manager2 dc duyet
+	@GetMapping("/get_all_list_nghiphep_of_manager2")
+	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_all_list_nghiphep_of_manager2(@RequestParam("id_lead") String id_lead_input,
+			@RequestParam("status") int status_input) {
+		try {
+			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager2/" + id_lead_input;
+			RestTemplate restTemplate = new RestTemplate();
+			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
+			List<ThamGiaDuAn> staff = call.getListstaff();
+			
+			if (status_input<0 || status_input>2) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "invalid status", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			
+			List<NghiPhep> otlst = new ArrayList<NghiPhep>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("TrangThai").is(status_input));
+			otlst = mongoTemplate.find(q, NghiPhep.class);
+			if (otlst.isEmpty()) {
+				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			List<NghiPhep> result = new ArrayList<NghiPhep>();
+			for (NghiPhep i : otlst) {
+				for (ThamGiaDuAn y : staff) {
+					if(i.getMaNhanVien().equals(y.getMaNV()) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) > 3) {
 						result.add(i);
 					}
 				}
