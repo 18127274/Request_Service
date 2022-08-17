@@ -384,10 +384,6 @@ public class NghiPhepController {
 								result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
 								result_staff.getAvatar());
 						User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-						// ApiResponse<User> resp1 = new ApiResponse<User>(0, "Success",
-						// repoUser.save(result_staff));
-						// new ResponseEntity<>(resp1, HttpStatus.CREATED);
-						// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
 						return new ResponseEntity<>(resp, HttpStatus.CREATED);
 
 					}

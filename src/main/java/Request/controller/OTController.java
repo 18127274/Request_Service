@@ -24,7 +24,8 @@ import org.springframework.web.client.RestTemplate;
 import Request.model.ApiResponse;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
-import Request.model.YeuCauThietBi;
+import Request.model.List_request;
+import Request.model.List_ThamGiaDuAn;
 import Request.repository.NghiPhepRepository;
 import Request.repository.NhanVienRepository;
 import Request.repository.OTRepository;
@@ -62,7 +63,8 @@ public class OTController {
 			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 	
@@ -91,16 +93,18 @@ public class OTController {
 		try {
 			List<OT> otlst = new ArrayList<OT>();
 			Query q = new Query();
-			q.addCriteria(Criteria.where("TrangThai").is("0"));
+			q.addCriteria(Criteria.where("TrangThai").is(0));
 			otlst = mongoTemplate.find(q, OT.class);
 
 			if (otlst.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
+			System.out.println(otlst.size());
 			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
@@ -118,12 +122,13 @@ public class OTController {
 			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
 	@PutMapping("/accept_ot")
-	public ResponseEntity<ApiResponse<OT>> TiepNhanOT(@RequestBody OT accept
+	public ResponseEntity<ApiResponse<OT>> TiepNhanOT(@RequestBody OT accept 
 //			@RequestParam("MaOT_input") String MaOT_input,
 //			@RequestParam("TinhTrang_input") String TinhTrang_input,
 //			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
@@ -148,7 +153,8 @@ public class OTController {
 			ApiResponse<OT> resp = new ApiResponse<OT>(1, "invalid input or NguoiDuyet don't have permission", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<OT> resp = new ApiResponse<OT>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
@@ -167,7 +173,45 @@ public class OTController {
 			ApiResponse<OT> resp = new ApiResponse<OT>(0, "Success", _ot);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<OT> resp = new ApiResponse<OT>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+		}
+	}
+	
+	@GetMapping("/list_ot_manager")
+	public ResponseEntity<ApiResponse<List<OT>>> list_ot_manager(@RequestBody List_request input) {
+		try {
+			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + input.getId_lead();
+			RestTemplate restTemplate = new RestTemplate();
+			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
+			List<ThamGiaDuAn> staff = call.getListstaff();
+			
+			if (input.getStatus()<0 || input.getStatus() >2) {
+				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "invalid status", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			
+			List<OT> otlst = new ArrayList<OT>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("TrangThai").is(input.getStatus()));
+			otlst = mongoTemplate.find(q, OT.class);
+			if (otlst.isEmpty()) {
+				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Empty data", otlst);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+			}
+			List<OT> result = new ArrayList<OT>();
+			for (OT i : otlst) {
+				for (ThamGiaDuAn y : staff) {
+					if(i.getMaNhanVien().equals(y.getMaNV())) {
+						result.add(i);
+					}
+				}
+			}
+			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", result);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(1, "ID lead not exist", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 

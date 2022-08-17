@@ -16,7 +16,7 @@ public class OT {
 	private float SoGio;
 	private String LyDoOT;
 	private String LyDoTuChoi;
-	private String TrangThai;
+	private int TrangThai;
 
 	public String getID() {
 		return ID;
@@ -74,11 +74,11 @@ public class OT {
 		LyDoTuChoi = lyDoTuChoi;
 	}
 
-	public String getTrangThai() {
+	public int getTrangThai() {
 		return TrangThai;
 	}
 
-	public void setTrangThai(String trangThai) {
+	public void setTrangThai(int trangThai) {
 		TrangThai = trangThai;
 	}
 
@@ -91,7 +91,7 @@ public class OT {
 		SoGio = soGio;
 		LyDoOT = lyDoOT;
 		LyDoTuChoi = "";
-		TrangThai = "0";
+		TrangThai = 0;
 	}
 
 	public OT() {
