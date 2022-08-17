@@ -55,25 +55,25 @@ public class YeuCauThietBiController {
 	MongoOperations mongoOperation;
 
 	// lay ra danh sach tat ca yeu cau thiet bi
-//	@GetMapping("/view_all_list_request_yeucauthietbi")
-//	public ResponseEntity<ApiResponse<List<WFH>>> View_all_list_request_yeucauthietbi() {
-//		try {
-//			List<WFH> wfhlst = new ArrayList<WFH>();
-//
-//			repoWFH.findAll().forEach(wfhlst::add);
-//
-//			if (wfhlst.isEmpty()) {
-//				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Request is empty!", null);
-//				return new ResponseEntity<>(resp, HttpStatus.OK);
-//				
-//			}
-//
-//			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
-//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//		} catch (Exception e) {
-//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
+	@GetMapping("/get_all_list_request_yeucauthietbi_of_staff/{MaNV_input}")
+	public ResponseEntity<ApiResponse<List<YeuCauThietBi>>> get_all_list_request_yeucauthietbi_of_staff(@PathVariable(value = "MaNV_input") String MaNV_input) {
+		try {
+			List<YeuCauThietBi> wfhlst = new ArrayList<YeuCauThietBi>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
+
+			wfhlst = mongoTemplate.find(q, YeuCauThietBi.class);
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "Request is empty!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+				// return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Success", wfhlst);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 //
 //	// lấy ra đơn yêu cầu wfh thông qua mã đơn.
 //	@GetMapping("/get_wfh_id/{MaWFH_input}")

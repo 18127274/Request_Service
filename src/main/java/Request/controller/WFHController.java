@@ -187,7 +187,7 @@ public class WFHController {
 				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Can't request because you have petition", null);
+			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 

@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import Request.model.ApiResponse;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
+import Request.model.YeuCauThietBi;
 import Request.repository.NghiPhepRepository;
 import Request.repository.NhanVienRepository;
 import Request.repository.OTRepository;
@@ -59,6 +60,26 @@ public class OTController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/get_all_list_request_ot_of_staff/{MaNV_input}")
+	public ResponseEntity<ApiResponse<List<OT>>> Get_all_list_request_ot_of_staff(@PathVariable(value = "MaNV_input") String MaNV_input) {
+		try {
+			List<OT> wfhlst = new ArrayList<OT>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
+
+			wfhlst = mongoTemplate.find(q, OT.class);
+			if (wfhlst.isEmpty()) {
+				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(1, "Request is empty!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
+				// return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
