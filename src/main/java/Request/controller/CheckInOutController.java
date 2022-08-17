@@ -170,35 +170,35 @@ public class CheckInOutController {
 		}
 	}
 
-	@PostMapping("/check_in/{MaNV}")
-	public ResponseEntity<ApiResponse<Check_in_out>> check_in(@PathVariable("MaNV") String MaNV_input) {
-		try {
-			// get list
-			LocalDateTime currentdate = LocalDateTime.now();
-			List<Check_in_out> checklst = new ArrayList<Check_in_out>();
-			Query q = new Query();
-			q.addCriteria(Criteria.where("MaNV").is(MaNV_input));
-			checklst = mongoTemplate.find(q, Check_in_out.class);
-
-			// check in loop
-			for (Check_in_out i : checklst) {
-				if (i.getMaNV().equals(MaNV_input) && !(i.getGioKetThuc() != null)
-						&& i.getGioBatDau().getDayOfMonth() == currentdate.getDayOfMonth()
-						&& i.getGioBatDau().getMonthValue() == currentdate.getMonthValue()
-						&& i.getGioBatDau().getYear() == currentdate.getYear()) {
-					ApiResponse<Check_in_out> resp = new ApiResponse<>(1, "Not Checkout yet", null);
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-				}
-			}
-			//test
-			String ID = UUID.randomUUID().toString();
-			Check_in_out _check_in = repoCheckIn.save(new Check_in_out(ID, MaNV_input));
-			_check_in.setGioBatDau(_check_in.getGioBatDau().minusHours(7));
-			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", _check_in);
-			return new ResponseEntity<>(resp, HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+//	@PostMapping("/check_in/{MaNV}")
+//	public ResponseEntity<ApiResponse<Check_in_out>> check_in(@PathVariable("MaNV") String MaNV_input) {
+//		try {
+//			// get list
+//			LocalDateTime currentdate = LocalDateTime.now();
+//			List<Check_in_out> checklst = new ArrayList<Check_in_out>();
+//			Query q = new Query();
+//			q.addCriteria(Criteria.where("MaNV").is(MaNV_input));
+//			checklst = mongoTemplate.find(q, Check_in_out.class);
+//
+//			// check in loop
+//			for (Check_in_out i : checklst) {
+//				if (i.getMaNV().equals(MaNV_input) && !(i.getGioKetThuc() != null)
+//						&& i.getGioBatDau().getDayOfMonth() == currentdate.getDayOfMonth()
+//						&& i.getGioBatDau().getMonthValue() == currentdate.getMonthValue()
+//						&& i.getGioBatDau().getYear() == currentdate.getYear()) {
+//					ApiResponse<Check_in_out> resp = new ApiResponse<>(1, "Not Checkout yet", null);
+//					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//				}
+//			}
+//			//test
+//			String ID = UUID.randomUUID().toString();
+//			Check_in_out _check_in = repoCheckIn.save(new Check_in_out(ID, MaNV_input));
+//			_check_in.setGioBatDau(_check_in.getGioBatDau().minusHours(7));
+//			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", _check_in);
+//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//		} catch (Exception e) {
+//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//	}
 
 }
