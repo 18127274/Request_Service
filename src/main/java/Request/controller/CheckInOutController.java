@@ -170,7 +170,7 @@ public class CheckInOutController {
 		}
 	}
 
-	@PostMapping("/check_in_nv/{MaNV}")
+	@PostMapping("/check_in/{MaNV}")
 	public ResponseEntity<ApiResponse<Check_in_out>> check_in(@PathVariable("MaNV") String MaNV_input) {
 		try {
 			// get list

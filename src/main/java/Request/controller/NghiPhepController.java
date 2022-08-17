@@ -146,35 +146,61 @@ public class NghiPhepController {
 	
 	//lay ra danh sach nhung don yeu cau ma manager2 dc duyet
 	@GetMapping("/get_all_list_nghiphep_of_manager2")
-	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_all_list_nghiphep_of_manager2(@RequestParam("id_lead") String id_lead_input,
+	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_all_list_nghiphep_of_manager2(@RequestParam("id_director") String id_director,
 			@RequestParam("status") int status_input) {
 		try {
-			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager2/" + id_lead_input;
-			RestTemplate restTemplate = new RestTemplate();
-			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-			List<ThamGiaDuAn> staff = call.getListstaff();
 			
+			//gọi api lấy ra director của 1 thằng team leader
+
+			String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/" + id_director;
+
+			RestTemplate restTemplate1 = new RestTemplate();
+	
+			List_ThamGiaDuAn call1 = restTemplate1.getForObject(uri1, List_ThamGiaDuAn.class);
+		
+			List<ThamGiaDuAn> infor_tl = call1.getListstaff();
+			
+			ThamGiaDuAn[] array = infor_tl.toArray(new ThamGiaDuAn[0]);
+			
+			System.out.println(array[0].getMaTL());
+						
+	
+			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + array[0].getMaTL();
+			System.out.println(uri);
+			RestTemplate restTemplate = new RestTemplate();
+			System.out.println("cac1");
+			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
+			System.out.println("cac2");
+			List<ThamGiaDuAn> staff = call.getListstaff();
+			System.out.println("cac3");
 			if (status_input<0 || status_input>2) {
 				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
-			
+			System.out.println("cac4");
 			List<NghiPhep> otlst = new ArrayList<NghiPhep>();
 			Query q = new Query();
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, NghiPhep.class);
+			System.out.println("cac5");
+			
 			if (otlst.isEmpty()) {
 				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
+			System.out.println("cac6");
 			List<NghiPhep> result = new ArrayList<NghiPhep>();
 			for (NghiPhep i : otlst) {
-				for (ThamGiaDuAn y : staff) {
+				for (ThamGiaDuAn y : staff ) {
+					System.out.println("ngay bat dau: " + i.getNgayBatDau());
+					System.out.println("ngay ket thuc: " + i.getNgayKetThuc());
+					System.out.println(Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()));
 					if(i.getMaNhanVien().equals(y.getMaNV()) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) > 3) {
 						result.add(i);
 					}
 				}
 			}
+			
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
