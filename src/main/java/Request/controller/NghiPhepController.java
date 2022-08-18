@@ -771,7 +771,6 @@ public class NghiPhepController {
 
 	}
 
-	
 	// nhân viên xem lại lịch sử cũng như số phép còn lại trong năm
 	@GetMapping("/get_np_history/{MaNV_input}")
 	public ResponseEntity<ApiResponse<NghiPhepResponse>> Get_np_history(
