@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import Request.model.ApiResponse;
+import Request.model.List_Staff;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
 import Request.model.approve_ot;
@@ -237,16 +238,19 @@ public class OTController {
 	public ResponseEntity<ApiResponse<List<OT>>> list_ot_manager(@RequestParam("id_lead") String id_lead_input,
 			@RequestParam("status") int status_input) {
 		try {
+			//Tra ve list staff cua manager
 			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
 			RestTemplate restTemplate = new RestTemplate();
-			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-			List<ThamGiaDuAn> staff = call.getListstaff();
+			List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+			List<String> staff = call.getListstaff();
 			
+			//Check input status
 			if (status_input<0 || status_input>2) {
 				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
+			//Lay ra tat ca request OT co status nhu input
 			List<OT> otlst = new ArrayList<OT>();
 			Query q = new Query();
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
@@ -256,9 +260,11 @@ public class OTController {
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			List<OT> result = new ArrayList<OT>();
+			
+			//Lay ra nhung request cua nhung staff duoi quyen manager input 
 			for (OT i : otlst) {
-				for (ThamGiaDuAn y : staff) {
-					if(i.getMaNhanVien().equals(y.getMaNV())) {
+				for (String y : staff) {
+					if(i.getMaNhanVien().equals(y)) {
 						result.add(i);
 					}
 				}
