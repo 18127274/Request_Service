@@ -28,6 +28,7 @@ import org.springframework.web.client.RestTemplate;
 
 import Request.model.ApiResponse;
 import Request.model.DuAn;
+import Request.model.List_Staff;
 import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.User;
@@ -137,8 +138,8 @@ public class YeuCauThietBiController {
 				System.out.println("vao 4");
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_reviewer;
 				RestTemplate restTemplate = new RestTemplate();
-				List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-				List<ThamGiaDuAn> staff = call.getListstaff();
+				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+				List<String> staff = call.getListstaff();
 				
 				if (status_input<0 || status_input>5) {
 					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "invalid status", null);
@@ -157,9 +158,9 @@ public class YeuCauThietBiController {
 				}
 				List<YeuCauThietBi> result = new ArrayList<YeuCauThietBi>();
 				for (YeuCauThietBi i : otlst) {
-					for (ThamGiaDuAn y : staff) {
+					for (String y : staff) {
 						System.out.println("vao dc so sanh");
-						if(i.getMaNhanVien().equals(y.getMaNV())) {
+						if(i.getMaNhanVien().equals(y)) {
 							System.out.println("co data");
 							result.add(i);
 						}
