@@ -113,6 +113,9 @@ public class NghiPhepController {
 			@RequestParam("status") int status_input,
 			@RequestParam("role") int role) {
 		try {
+			System.out.println(role);
+			System.out.println(status_input);
+			System.out.println(id_reviewer);
 			if(role == 4) {
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_reviewer;
 				RestTemplate restTemplate = new RestTemplate();
@@ -120,7 +123,7 @@ public class NghiPhepController {
 				List<ThamGiaDuAn> staff = call.getListstaff();
 				
 				if (status_input<0 || status_input>2) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "invalid status", null);
+					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				
@@ -166,7 +169,7 @@ public class NghiPhepController {
 				List<ThamGiaDuAn> staff = call.getListstaff();
 				System.out.println("cac3");
 				if (status_input<0 || status_input>2) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "invalid status", null);
+					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				System.out.println("cac4");
@@ -204,7 +207,7 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "ID lead not exist or role input wrong!", null);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "ID reviewer not exist or role input wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}

@@ -108,6 +108,7 @@ public class YeuCauThietBiController {
 		try {
 			if(role == 1 && status_input == 1) { //phong it dc duyet
 				//check xem thang reviwer nay co ton tai va co role la 1 hay khong?
+				
 				System.out.println("vao 1");
 			
 				final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + id_reviewer;
@@ -123,13 +124,13 @@ public class YeuCauThietBiController {
 					q.addCriteria(Criteria.where("TrangThai").is(1));
 					otlst = mongoTemplate.find(q, YeuCauThietBi.class);
 					if(otlst.isEmpty()) {
-						ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "id_reviewer or status is wrong!", otlst);
+						ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Empty data", otlst);
 						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Success", otlst);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}		
-				ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "id_reviewer or status is wrong!", null);
+				ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "id_reviewer or status is wrong!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			else if(role == 4 && status_input == 4) {
@@ -140,7 +141,7 @@ public class YeuCauThietBiController {
 				List<ThamGiaDuAn> staff = call.getListstaff();
 				
 				if (status_input<0 || status_input>5) {
-					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "invalid status", null);
+					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				
@@ -192,7 +193,7 @@ public class YeuCauThietBiController {
 
 				System.out.println("status: " + status_input);
 				if (status_input<0 || status_input>5) {
-					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "invalid status", null);
+					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				System.out.println("cac4");
@@ -238,17 +239,17 @@ public class YeuCauThietBiController {
 					q.addCriteria(Criteria.where("TrangThai").is(3));
 					otlst = mongoTemplate.find(q, YeuCauThietBi.class);
 					if(otlst.isEmpty()) {
-						ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "id_reviewer or status is wrong!", otlst);
+						ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Empty data", otlst);
 						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 					ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Success", otlst);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}		
-				ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "id_reviewer or status is wrong!", null);
+				ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Empty data", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			System.out.println("ra ngoai");
-			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "ID reviewer does not exist or status is wrong!", null);
+			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "ID reviewer does not exist or status is wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
 			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "ID reviewer does not exist or status is wrong!", null);
@@ -415,7 +416,7 @@ public class YeuCauThietBiController {
 				ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Can't request because you have petition", null);
+			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 
