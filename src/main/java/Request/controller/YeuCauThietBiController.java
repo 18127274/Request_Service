@@ -137,12 +137,15 @@ public class YeuCauThietBiController {
 					
 					List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
 					for (YeuCauThietBi i : result1) {
-						String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
-						System.out.println("api1: " + uri1);
-						RestTemplate restTemplate1 = new RestTemplate();
-						User staff1 = restTemplate1.getForObject(uri1, User.class);
-						YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
-						resp.add(temp);
+						if(i.getTrangThai() == 1) {
+							String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+							System.out.println("api1: " + uri1);
+							RestTemplate restTemplate1 = new RestTemplate();
+							User staff1 = restTemplate1.getForObject(uri1, User.class);
+							YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
+							resp.add(temp);
+						}
+						
 					}
 					
 					ApiResponse<List<YeuCauThietBi_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
@@ -190,7 +193,7 @@ public class YeuCauThietBiController {
 				}
 				//them ten
 				List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
-				for (YeuCauThietBi i : otlst) {
+				for (YeuCauThietBi i : result) {
 					String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
 					System.out.println("api1: " + uri1);
 					RestTemplate restTemplate1 = new RestTemplate();
@@ -216,11 +219,11 @@ public class YeuCauThietBiController {
 				System.out.println(uri);
 				RestTemplate restTemplate = new RestTemplate();
 
-				List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-
-				List<ThamGiaDuAn> staff = call.getListstaff();
+				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+				List<String> staff = call.getListstaff();
 
 				System.out.println("status: " + status_input);
+				System.out.println("tao vo roi ne");
 				if (status_input<0 || status_input>5) {
 					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
@@ -238,9 +241,9 @@ public class YeuCauThietBiController {
 		
 				List<YeuCauThietBi> result = new ArrayList<YeuCauThietBi>();
 				for (YeuCauThietBi i : otlst) {
-					for (ThamGiaDuAn y : staff ) {
+					for (String y : staff ) {
 			
-						if(i.getMaNhanVien().equals(y.getMaNV())) {
+						if(i.getMaNhanVien().equals(y)) {
 							System.out.println("co data" );
 							result.add(i);
 						}
@@ -250,10 +253,10 @@ public class YeuCauThietBiController {
 					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
-				
+				System.out.println("do dai cac don yctb co stt 5: " + result.size());
 				//them ten
 				List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
-				for (YeuCauThietBi i : otlst) {
+				for (YeuCauThietBi i : result) {
 					String uri2 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
 					System.out.println("api1: " + uri2);
 					RestTemplate restTemplate2 = new RestTemplate();
@@ -290,18 +293,21 @@ public class YeuCauThietBiController {
 					
 					List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
 					for (YeuCauThietBi i : result1) {
-						String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
-						System.out.println("api1: " + uri1);
-						RestTemplate restTemplate1 = new RestTemplate();
-						User staff1 = restTemplate1.getForObject(uri1, User.class);
-						YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
-						resp.add(temp);
+						if(i.getTrangThai() == 3) {
+							String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+							System.out.println("api1: " + uri1);
+							RestTemplate restTemplate1 = new RestTemplate();
+							User staff1 = restTemplate1.getForObject(uri1, User.class);
+							YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
+							resp.add(temp);
+						}
+						
 					}
 					
 					ApiResponse<List<YeuCauThietBi_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
 					return new ResponseEntity<>(resp1, HttpStatus.OK);
 				}		
-				ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(0, "Empty data", null);
+				ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1, "ID reviewer does not exist or status is wrong!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			System.out.println("ra ngoai");
