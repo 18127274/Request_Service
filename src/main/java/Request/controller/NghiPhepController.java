@@ -512,10 +512,11 @@ public class NghiPhepController {
 			}
 			System.out.println("list id: " + approve.getList_id_request());
 			System.out.println("list id: " + approve.getAction());
-
+			
+			int check = 0;
 			// set điều kiện để manager cấp 1 hay là manager cấp 2 duyệt đơn
 			// if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
-
+			
 			if (approve.getAction().toUpperCase().equals("ACCEPT")) { // check xem loai action la reject hay accept
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
@@ -526,11 +527,12 @@ public class NghiPhepController {
 					q.addCriteria(Criteria.where("ID").is(request_id));
 					NghiPhep ot = mongoTemplate.findOne(q, NghiPhep.class);
 					// Validate manager authority
+					System.out.println("deo vao dc ");
 					if (ot.getTrangThai() == 0) { // kiểm tra trạng thái đơn hàng
 
 						System.out.println("ngay bat dau: " + ot.getNgayBatDau());
 						System.out.println("ngay bat dau: " + ot.getNgayKetThuc());
-
+						
 						if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
 							System.out.println("so ngay < 3");
 							// lấy ra manager 1 của staff
@@ -579,8 +581,12 @@ public class NghiPhepController {
 							}
 
 						}
+						else if(ot.getTrangThai() != 0) {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+							return new ResponseEntity<>(resp, HttpStatus.OK);
+						}
 
-						else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3) {
+						else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3 && ot.getTrangThai() == 0) {
 
 							System.out.println("so ngay > 3");
 							// lấy ra manager 2 của staff
@@ -596,28 +602,34 @@ public class NghiPhepController {
 							ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 
 							System.out.println("mã pm update ne: " + manager2.getMaPM());
-							if (manager2.getID() != null && manager2.getMaPM().equals(approve.getId_lead())) {
+							System.out.println("ma pm input: " + approve.getId_lead());
+							System.out.println("so sanh ma pm voi in mapm: " + manager2.getMaPM().equals(approve.getId_lead()));
+							
+							if (manager2.getMaPM() != null && manager2.getMaPM().equals(approve.getId_lead())) {
 								ot.setLyDoTuChoi(approve.getReason());
-
+								System.out.println("cac 1");
 								// goi service user de lay infor nhanvien
-								final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
-										+ manager.getMaNV();
+								final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"+ manager.getMaNV();
 								RestTemplate restTemplate4 = new RestTemplate();
 								User result_staff = restTemplate4.getForObject(uri4, User.class);
-
+								
+								System.out.println("cac 2");
+								System.out.println(result_staff.getID());
+								
 								ot.setTrangThai(1);
 								ot.setLyDoTuChoi("");
 								ot.setMaNguoiDuyet(approve.getId_lead());
 
 								result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số
 																									// ngày
-																									// nghỉ
+								System.out.println("cac 3");																// nghỉ
 								// phép còn lại
 								ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
 								System.out.println("mã nhân viên cần update: " + manager);
 								// goi lai service user de cap nhat lai so phep con lai
 								final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
 										+ manager.getMaNV();
+								System.out.println("cac 4");
 								System.out.println("api update: " + uri3);
 								RestTemplate restTemplate3 = new RestTemplate();
 								User _nv = new User(result_staff.getID(), result_staff.getHoTen(),
@@ -627,19 +639,30 @@ public class NghiPhepController {
 								User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
 								// return new ResponseEntity<>(resp, HttpStatus.CREATED);
 								repoNP.save(ot);
+								System.out.println("cac 5");
 
 							}
+							else {
+								ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+										"Id reviewer or order id not valid", null);
+								return new ResponseEntity<>(resp, HttpStatus.OK);
+							}
 
-						} else {
-							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
-									"Id reviewer or order id not valid", null);
+						} 
+						else {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
+					}
+					else {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 
 				}
 			}
 			// TU CHOI DUYET DON
+			
 			else if (approve.getAction().toUpperCase().equals("REJECT")) { // check xem loai action la reject hay accept
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
@@ -656,7 +679,7 @@ public class NghiPhepController {
 					System.out.println("ngay bat dau: " + ot.getNgayBatDau());
 					System.out.println("ngay bat dau: " + ot.getNgayKetThuc());
 
-					if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
+					if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3 && ot.getTrangThai() == 0) {
 						System.out.println("so ngay < 3");
 						// lấy ra manager 1 của staff
 						String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/"
@@ -687,8 +710,12 @@ public class NghiPhepController {
 						}
 
 					}
+					else if(ot.getTrangThai() != 0) {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+						return new ResponseEntity<>(resp, HttpStatus.OK);
+					}
 
-					else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3) {
+					else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3 && ot.getTrangThai() == 0) {
 
 						System.out.println("so ngay > 3");
 						// lấy ra manager 2 của staff
@@ -704,7 +731,7 @@ public class NghiPhepController {
 						ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 
 						System.out.println("mã pm update ne: " + manager2.getMaPM());
-						if (manager2.getID() != null && manager2.getMaPM().equals(approve.getId_lead())) {
+						if (manager2.getMaPM() != null && manager2.getMaPM().equals(approve.getId_lead())) {
 							ot.setLyDoTuChoi(approve.getReason());
 
 							// goi service user de lay infor nhanvien
@@ -726,6 +753,10 @@ public class NghiPhepController {
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
 					}
+					else {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+						return new ResponseEntity<>(resp, HttpStatus.OK);
+					}
 
 				}
 			}
@@ -734,7 +765,7 @@ public class NghiPhepController {
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 
 		} catch (Exception e) {
-			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid OT id", null);
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 
