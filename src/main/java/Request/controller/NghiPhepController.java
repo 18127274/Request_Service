@@ -167,7 +167,8 @@ public class NghiPhepController {
 			} else if (role == 5) {
 				// gọi api lấy ra director của 1 thằng team leader
 
-				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/"+ id_reviewer;
+				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/"
+						+ id_reviewer;
 				RestTemplate restTemplate1 = new RestTemplate();
 				List_ThamGiaDuAn call1 = restTemplate1.getForObject(uri1, List_ThamGiaDuAn.class);
 				List<ThamGiaDuAn> infor_tl = call1.getListstaff();
@@ -446,60 +447,14 @@ public class NghiPhepController {
 		}
 	}
 
-	// lấy ra đơn yêu cầu nghỉ phép thuộc quyền của teamleader/PM xác định. vd: lấy
-	// ra những đơn của teamleader có mald = ld001
-//1 lấy ra những thằng nhân viên do 1 TL/PM quản lý 
-
-//2 lấy ra những đơn nghỉ phép có số ngày < 3 và > 3 
-//	@GetMapping("/get_list_dayoff_greater_than_3/{ngaybatdau}/{ngayketthuc}")
-//	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_list_dayoff_greater_than_3(@PathVariable(value = "ngaybatdau") LocalDate ngaybatdau, @PathVariable(value = "ngayketthuc") LocalDate ngayketthuc) {
-//		
+	// hàm hỗ trợ tính khoảng cách giữa hai ngày
 	public long Caculatebetweentwoday(LocalDate startday, LocalDate enddate) {
 		Period period = Period.between(startday, enddate);
 		long daysDiff = Math.abs(period.getDays());
 		return daysDiff;
 	}
 
-	@GetMapping("/get_list_dayoff_by_TLorPM")
-	public ResponseEntity<ApiResponse<NghiPhep>> Get_list_dayoff_by_TLorPM() {
-		try {
-			List<NghiPhep> nplst = new ArrayList<NghiPhep>();
-			// repoNP.findAll().forEach(wfhlst::add);
-
-			// System.out.println(wfhlst.getClass().getName());
-			// List<NghiPhep> list_nghiphep = new ArrayList<NghiPhep>();
-			Query q = new Query();
-			q.addCriteria(Criteria.where("TrangThai").is(0));
-			nplst = mongoTemplate.find(q, NghiPhep.class);
-
-			if (nplst.isEmpty() == false) {
-				for (NghiPhep i : nplst) {
-					System.out.println("start day: " + i.getNgayBatDau().minusDays(1));
-					System.out.println("end day: " + i.getNgayKetThuc().minusDays(1));
-
-					if (Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) > 3) {
-						// System.out.println(i.getClass().getName());
-						// System.out.println("day: " + i.getNgayKetThuc());
-//						i.getNgayBatDau().minusDays(1);
-//						i.getNgayKetThuc().minusDays(1);
-
-						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", i);
-						// return new ResponseEntity<>(resp, HttpStatus.OK);
-						return new ResponseEntity<>(resp, HttpStatus.CREATED);
-					} else {
-
-					}
-				}
-			}
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "No infor", null);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
-
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
-	// // nhân viên yêu cầu nghỉ phép
+	// nhân viên yêu cầu nghỉ phép
 	@PostMapping("/request_nghiphep")
 	public ResponseEntity<ApiResponse<NghiPhep>> Request_nghiphep(@RequestBody NghiPhep np) {
 		try {
@@ -539,392 +494,254 @@ public class NghiPhepController {
 		}
 	}
 
-	
-
-//	
-//	@PutMapping("/approve_request_nghiphep")
-//	public ResponseEntity<ApiResponse<List<NghiPhep_Response>>> Approve_request_wfh(@RequestBody approve_ot approve) {
-//		try {
-//			List<WFH> result = new ArrayList<WFH>();
-//			if (!approve.getAction().toUpperCase().equals("ACCEPT")
-//					&& !(approve.getAction().toUpperCase().equals("REJECT"))) {
-//				ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//			if (approve.getAction().toUpperCase().equals("REJECT")
-//					&& (approve.getReason() == null || approve.getReason().equals(""))) {
-//				ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reason", null);
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//			System.out.println("list id: " + approve.getList_id_request());
-//			System.out.println("list id: " + approve.getAction());
-//
-//			// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt 
-//
-//			for (String request_id : approve.getList_id_request()) {
-//				// Find request
-//				Query q = new Query();
-//				q.addCriteria(Criteria.where("ID").is(request_id));
-//				NghiPhep ot = mongoTemplate.findOne(q, NghiPhep.class);
-//				// Validate manager authority
-//				if(ot.getTrangThai() == 0) { // kiểm tra trạng thái đơn hàng
-//					
-//					//lấy ra manager 1 của staff
-//					String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/" + ot.getMaNhanVien();
-//					RestTemplate restTemplate = new RestTemplate();
-//					ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-//					
-//					
-//					if (manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
-//						ot.setLyDoTuChoi(approve.getReason());
-//						if (approve.getAction().toUpperCase().equals("ACCEPT")) {
-//							
-//							// goi service user de lay infor nhanvien
-//							final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + manager.getMaNV();
-//							RestTemplate restTemplate1 = new RestTemplate();
-//							User result_staff = restTemplate1.getForObject(uri1, User.class);
-//							
-//							ot.setTrangThai(1);
-//							ot.setLyDoTuChoi("");
-//							
-//							
-//							ApiResponse<NghiPhep_Response> resp = new ApiResponse<NghiPhep_Response>(0, "Success", repoNP.save(ot));
-//						
-//							// goi lai service user de cap nhat lai so phep con lai
-//							final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/" + manager.getID();
-//							System.out.println("api update: " + uri3);
-//							RestTemplate restTemplate3 = new RestTemplate();
-//							User _nv = new User(result_staff.getID(), result_staff.getHoTen(), result_staff.getUserName(),
-//									result_staff.getPassWord(), result_staff.getGioiTinh(), result_staff.getChucVu(),
-//									result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
-//									result_staff.getAvatar());
-//							User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-//							return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//							
-//						} else {
-//							ot.setTrangThai(2);
-//						}
-//						ot.setMaNguoiDuyet(approve.getId_lead());
-//						repoWFH.save(ot);
-//						result.add(ot);
-//					} else {
-//						ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1,
-//								"invalid input or Leader don't have permission", null);
-//						return new ResponseEntity<>(resp, HttpStatus.OK);
-//					}
-//				}
-//				List<WFH_Reponse> resp = new ArrayList<WFH_Reponse>();
-//				for (WFH i : result) {
-//					String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
-//					RestTemplate restTemplate = new RestTemplate();
-//					User staff = restTemplate.getForObject(uri, User.class);
-//					WFH_Reponse temp = new WFH_Reponse(i, staff);
-//					resp.add(temp);
-//					System.out.println("qua dc add");
-//				}
-//
-//				ApiResponse<List<WFH_Reponse>> resp1 = new ApiResponse<>(0, "Success", resp);
-//				return new ResponseEntity<>(resp1, HttpStatus.OK);
-//				}
-//				
-//			
-//			
-//			if (np.getTrangThai() == 0) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
-//				System.out.println("so ngay nghi phep: " + Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()));
-//
-//				if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) > 3) {
-//					// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 2 của nhân viên
-//					// này hay không?
-//
-//					final String uri = "https://duanteam07.herokuapp.com/api/get_manager2_of_staff/"+ np.getMaNhanVien();
-//					System.out.println("api: " + uri);
-//					RestTemplate restTemplate2 = new RestTemplate();
-//					DuAn result = restTemplate2.getForObject(uri, DuAn.class);
-//
-//					System.out.println("result: " + result);
-//
-//					System.out.println("mapm api : " + result.getMaPM());
-//					System.out.println("mapm input: " + manguoiduyet);
-//					if (result != null && result.getMaPM().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-//																					// tìm manager cấp 2 theo id_staff
-//																					// có tồn tại k và mã người duyệt
-//																					// đúng là manager cấp 2 của staff
-//																					// đó hay k?
-//						// result.getMaTL().equals(manguoiduyet)
-//						np.setTrangThai(1);
-//						np.setMaNguoiDuyet(manguoiduyet);
-//						result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số ngày nghỉ
-//																							// phép còn lại
-//						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
-//						// goi lai service user de cap nhat lai so phep con lai
-//						final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
-//								+ result_staff.getID();
-//						System.out.println("api update: " + uri3);
-//						RestTemplate restTemplate3 = new RestTemplate();
-//						User _nv = new User(result_staff.getID(), result_staff.getHoTen(), result_staff.getUserName(),
-//								result_staff.getPassWord(), result_staff.getGioiTinh(), result_staff.getChucVu(),
-//								result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
-//								result_staff.getAvatar());
-//						User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-//						
-//						
-//						return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//
-//					}
-//				} else if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) <= 3) {
-//					// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-//					// này hay không?
-//
-//					final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/"
-//							+ np.getMaNhanVien();
-//					System.out.println("api: " + uri);
-//					RestTemplate restTemplate = new RestTemplate();
-//					ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-//					System.out.println("mapm api: " + result.getMaTL());
-//					System.out.println("mapm input: " + manguoiduyet);
-//					if (result != null && result.getMaTL().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-//																					// tìm
-//																					// manager cấp 1 theo id_staff có
-//																					// tồn
-//																					// tại k và mã người duyệt đúng là
-//																					// manager cấp 1 của staff đó hay k?
-//						np.setTrangThai(1);
-//						np.setMaNguoiDuyet(manguoiduyet);
-//						// result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật
-//						// lại số ngày nghỉ phép còn lại
-//						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
-//						System.out.println("so phep sau khi tru: " + result_staff.getSoPhepConLai());
-//						// goi lai service user de cap nhat lai so phep con lai
-//						final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
-//								+ result_staff.getID();
-//						System.out.println("api update: " + uri3);
-//						RestTemplate restTemplate3 = new RestTemplate();
-//						User _nv = new User(result_staff.getID(), result_staff.getHoTen(), result_staff.getUserName(),
-//								result_staff.getPassWord(), result_staff.getGioiTinh(), result_staff.getChucVu(),
-//								result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
-//								result_staff.getAvatar());
-//						User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-//						return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//
-//					}
-//
-//				}
-//
-//			}
-//
-//			System.out.println("Trang thai nghi phep sau khi cap nhat: " + np.getTrangThai());
-//
-//			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Order id wrong or id manager wrong!", null);
-//
-//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			
-//		} catch (Exception e) {
-//			ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "Invalid OT id", null);
-//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//		}
-//	}
-
-	@PutMapping("/approve_request_nghiphep1")
-	public ResponseEntity<ApiResponse<NghiPhep>> Approve_request_nghiphep1(
-			@RequestParam(value = "id", required = false) String id,
-			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet) {
+	// hàm xét duyệt đơn nghỉ phép ( manager1, manager 2)
+	@PutMapping("/approve_request_nghiphep")
+	public ResponseEntity<ApiResponse<List<NghiPhep_Response>>> Approve_request_nghiphep(
+			@RequestBody approve_ot approve) {
 		try {
-			// duyệt table nghỉ phép theo id
-			Query q = new Query();
-			q.addCriteria(Criteria.where("ID").is(id));
-			NghiPhep np = mongoTemplate.findOne(q, NghiPhep.class);
+			List<NghiPhep> result = new ArrayList<NghiPhep>();
+			if (!approve.getAction().toUpperCase().equals("ACCEPT")
+					&& !(approve.getAction().toUpperCase().equals("REJECT"))) {
+				ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			if (approve.getAction().toUpperCase().equals("REJECT")
+					&& (approve.getReason() == null || approve.getReason().equals(""))) {
+				ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reason", null);
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			}
+			System.out.println("list id: " + approve.getList_id_request());
+			System.out.println("list id: " + approve.getAction());
 
-			// goi service user de lay infor nhanvien
-			final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
-			RestTemplate restTemplate1 = new RestTemplate();
-			User result_staff = restTemplate1.getForObject(uri1, User.class);
+			// set điều kiện để manager cấp 1 hay là manager cấp 2 duyệt đơn
+			// if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
 
-			System.out.println("trang thai: " + np.getTrangThai());
-			System.out.println("So Phep con lai: " + result_staff.getSoPhepConLai());
+			if (approve.getAction().toUpperCase().equals("ACCEPT")) { // check xem loai action la reject hay accept
+				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
+				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
 
-			if (np.getTrangThai() == 0) { // kiểm tra xem đơn nghỉ phép có trạng thái là pending
-				System.out.println(
-						"so ngay nghi phep: " + Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()));
+				for (String request_id : approve.getList_id_request()) {
+					// Find request
+					Query q = new Query();
+					q.addCriteria(Criteria.where("ID").is(request_id));
+					NghiPhep ot = mongoTemplate.findOne(q, NghiPhep.class);
+					// Validate manager authority
+					if (ot.getTrangThai() == 0) { // kiểm tra trạng thái đơn hàng
 
-				if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) > 3) {
-					// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 2 của nhân viên
-					// này hay không?
+						System.out.println("ngay bat dau: " + ot.getNgayBatDau());
+						System.out.println("ngay bat dau: " + ot.getNgayKetThuc());
 
-					final String uri = "https://duanteam07.herokuapp.com/api/get_manager2_of_staff/"
-							+ np.getMaNhanVien();
-					System.out.println("api: " + uri);
-					RestTemplate restTemplate2 = new RestTemplate();
-					DuAn result = restTemplate2.getForObject(uri, DuAn.class);
+						if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
+							System.out.println("so ngay < 3");
+							// lấy ra manager 1 của staff
+							String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/"
+									+ ot.getMaNhanVien();
+							RestTemplate restTemplate = new RestTemplate();
+							ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 
-					System.out.println("result: " + result);
+							if (manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
+								ot.setLyDoTuChoi(approve.getReason());
 
-					System.out.println("mapm api : " + result.getMaPM());
-					System.out.println("mapm input: " + manguoiduyet);
-					if (result != null && result.getMaPM().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-																					// tìm manager cấp 2 theo id_staff
-																					// có tồn tại k và mã người duyệt
-																					// đúng là manager cấp 2 của staff
-																					// đó hay k?
-						// result.getMaTL().equals(manguoiduyet)
-						np.setTrangThai(1);
-						np.setMaNguoiDuyet(manguoiduyet);
-						result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số ngày nghỉ
-																							// phép còn lại
-						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
-						// goi lai service user de cap nhat lai so phep con lai
-						final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
-								+ result_staff.getID();
-						System.out.println("api update: " + uri3);
-						RestTemplate restTemplate3 = new RestTemplate();
-						User _nv = new User(result_staff.getID(), result_staff.getHoTen(), result_staff.getUserName(),
-								result_staff.getPassWord(), result_staff.getGioiTinh(), result_staff.getChucVu(),
-								result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
-								result_staff.getAvatar());
-						User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-						return new ResponseEntity<>(resp, HttpStatus.CREATED);
+								// goi service user de lay infor nhanvien
+								final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
+										+ manager.getMaNV();
+								RestTemplate restTemplate1 = new RestTemplate();
+								User result_staff = restTemplate1.getForObject(uri1, User.class);
 
-					}
-				} else if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) <= 3) {
-					// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-					// này hay không?
+								ot.setTrangThai(1);
+								ot.setLyDoTuChoi("");
+								ot.setMaNguoiDuyet(approve.getId_lead());
 
-					final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/"
-							+ np.getMaNhanVien();
-					System.out.println("api: " + uri);
-					RestTemplate restTemplate = new RestTemplate();
-					ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-					System.out.println("mapm api: " + result.getMaTL());
-					System.out.println("mapm input: " + manguoiduyet);
-					if (result != null && result.getMaTL().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-																					// tìm
-																					// manager cấp 1 theo id_staff có
-																					// tồn
-																					// tại k và mã người duyệt đúng là
-																					// manager cấp 1 của staff đó hay k?
-						np.setTrangThai(1);
-						np.setMaNguoiDuyet(manguoiduyet);
-						// result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật
-						// lại số ngày nghỉ phép còn lại
-						ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
-						System.out.println("so phep sau khi tru: " + result_staff.getSoPhepConLai());
-						// goi lai service user de cap nhat lai so phep con lai
-						final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
-								+ result_staff.getID();
-						System.out.println("api update: " + uri3);
-						RestTemplate restTemplate3 = new RestTemplate();
-						User _nv = new User(result_staff.getID(), result_staff.getHoTen(), result_staff.getUserName(),
-								result_staff.getPassWord(), result_staff.getGioiTinh(), result_staff.getChucVu(),
-								result_staff.getDiaChi(), result_staff.getEmail(), result_staff.getSDT(),
-								result_staff.getAvatar());
-						User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
-						return new ResponseEntity<>(resp, HttpStatus.CREATED);
+								result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số
+																									// ngày
+																									// nghỉ
+								// phép còn lại
+								ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
+								System.out.println("mã nhân viên cần update: " + manager.getMaNV());
+								// goi lai service user de cap nhat lai so phep con lai
+								final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
+										+ manager.getMaNV();
+								System.out.println("api update: " + uri3);
+								RestTemplate restTemplate3 = new RestTemplate();
+								User _nv = new User(result_staff.getID(), result_staff.getHoTen(),
+										result_staff.getUserName(), result_staff.getPassWord(),
+										result_staff.getGioiTinh(), result_staff.getChucVu(), result_staff.getDiaChi(),
+										result_staff.getEmail(), result_staff.getSDT(), result_staff.getAvatar());
+								User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
+								// return new ResponseEntity<>(resp, HttpStatus.CREATED);
 
+								repoNP.save(ot);
+								result.add(ot);
+							} else {
+								ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+										"Id reviewer or order id not valid", null);
+								return new ResponseEntity<>(resp, HttpStatus.OK);
+							}
+
+						}
+
+						else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3) {
+
+							System.out.println("so ngay > 3");
+							// lấy ra manager 2 của staff
+							String uri2 = "https://gatewayteam07.herokuapp.com/api/get_manager2_of_staff/"
+									+ ot.getMaNhanVien();
+							RestTemplate restTemplate2 = new RestTemplate();
+							DuAn manager2 = restTemplate2.getForObject(uri2, DuAn.class);
+
+							// lấy ra manager 1 của staff
+							String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/"
+									+ ot.getMaNhanVien();
+							RestTemplate restTemplate = new RestTemplate();
+							ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
+
+							System.out.println("mã pm update ne: " + manager2.getMaPM());
+							if (manager2.getID() != null && manager2.getMaPM().equals(approve.getId_lead())) {
+								ot.setLyDoTuChoi(approve.getReason());
+
+								// goi service user de lay infor nhanvien
+								final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
+										+ manager.getMaNV();
+								RestTemplate restTemplate4 = new RestTemplate();
+								User result_staff = restTemplate4.getForObject(uri4, User.class);
+
+								ot.setTrangThai(1);
+								ot.setLyDoTuChoi("");
+								ot.setMaNguoiDuyet(approve.getId_lead());
+
+								result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số
+																									// ngày
+																									// nghỉ
+								// phép còn lại
+								ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
+								System.out.println("mã nhân viên cần update: " + manager);
+								// goi lai service user de cap nhat lai so phep con lai
+								final String uri3 = "https://userteam07.herokuapp.com/api/update_sophepconlai/"
+										+ manager.getMaNV();
+								System.out.println("api update: " + uri3);
+								RestTemplate restTemplate3 = new RestTemplate();
+								User _nv = new User(result_staff.getID(), result_staff.getHoTen(),
+										result_staff.getUserName(), result_staff.getPassWord(),
+										result_staff.getGioiTinh(), result_staff.getChucVu(), result_staff.getDiaChi(),
+										result_staff.getEmail(), result_staff.getSDT(), result_staff.getAvatar());
+								User result3 = restTemplate3.postForObject(uri3, _nv, User.class);
+								// return new ResponseEntity<>(resp, HttpStatus.CREATED);
+								repoNP.save(ot);
+
+							}
+
+						} else {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+									"Id reviewer or order id not valid", null);
+							return new ResponseEntity<>(resp, HttpStatus.OK);
+						}
 					}
 
 				}
-
 			}
+			// TU CHOI DUYET DON
+			else if (approve.getAction().toUpperCase().equals("REJECT")) { // check xem loai action la reject hay accept
+				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
+				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
+				System.out.println("tao vao trong reject roi nay");
+				for (String request_id : approve.getList_id_request()) {
+					// Find request
+				
+					Query q = new Query();
+			
+					q.addCriteria(Criteria.where("ID").is(request_id));
+					NghiPhep ot = mongoTemplate.findOne(q, NghiPhep.class);
+					// Validate manager authority
 
-			System.out.println("Trang thai nghi phep sau khi cap nhat: " + np.getTrangThai());
+					System.out.println("ngay bat dau: " + ot.getNgayBatDau());
+					System.out.println("ngay bat dau: " + ot.getNgayKetThuc());
 
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Order id wrong or id manager wrong!", null);
+					if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
+						System.out.println("so ngay < 3");
+						// lấy ra manager 1 của staff
+						String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/"
+								+ ot.getMaNhanVien();
+						RestTemplate restTemplate = new RestTemplate();
+						ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 
-			return new ResponseEntity<>(resp, HttpStatus.CREATED);
-		} catch (
+						if (manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
+							ot.setLyDoTuChoi(approve.getReason());
 
-		Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+							// goi service user de lay infor nhanvien
+							final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
+									+ manager.getMaNV();
+							RestTemplate restTemplate1 = new RestTemplate();
+							User result_staff = restTemplate1.getForObject(uri1, User.class);
 
-	// tu choi don nghi phep
-	@PutMapping("/reject_request_nghiphep")
-	public ResponseEntity<ApiResponse<NghiPhep>> Reject_request_nghiphep(
-			@RequestParam(value = "id", required = false) String id,
-			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet,
-			@RequestParam(value = "lydotuchoi", required = false) String lydotuchoi) {
+							ot.setTrangThai(2);
+							ot.setLyDoTuChoi(approve.getReason());
+							ot.setMaNguoiDuyet(approve.getId_lead());
 
-		try {
-			// duyệt table nghỉ phép theo id
-			Query q = new Query();
-			q.addCriteria(Criteria.where("ID").is(id));
-			NghiPhep np = mongoTemplate.findOne(q, NghiPhep.class);
+							ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
+							System.out.println("mã nhân viên cần update: " + manager.getMaNV());
+							repoNP.save(ot);
+						} else {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+									"Id reviewer or order id not valid", null);
+							return new ResponseEntity<>(resp, HttpStatus.OK);
+						}
 
-			// goi service user de lay infor nhanvien
-			final String uri1 = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
-			RestTemplate restTemplate1 = new RestTemplate();
-			User result_staff = restTemplate1.getForObject(uri1, User.class);
+					}
 
-			System.out.println("trang thai: " + np.getTrangThai());
-			System.out.println("So Phep con lai: " + result_staff.getSoPhepConLai());
-			System.out.println(np.getTrangThai() == 0);
-			// kiểm tra xem đơn nghỉ phép có trạng thái là pending
-			System.out.println("so ngay nghi phep: " + Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()));
+					else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3) {
 
-			if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) > 3) {
-				// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 2 của nhân viên
-				// này hay không?
+						System.out.println("so ngay > 3");
+						// lấy ra manager 2 của staff
+						String uri2 = "https://gatewayteam07.herokuapp.com/api/get_manager2_of_staff/"
+								+ ot.getMaNhanVien();
+						RestTemplate restTemplate2 = new RestTemplate();
+						DuAn manager2 = restTemplate2.getForObject(uri2, DuAn.class);
 
-				final String uri = "https://duanteam07.herokuapp.com/api/get_manager2_of_staff/" + np.getMaNhanVien();
-				System.out.println("api: " + uri);
-				RestTemplate restTemplate = new RestTemplate();
-				DuAn result = restTemplate.getForObject(uri, DuAn.class);
-				System.out.println("result: " + result);
-				System.out.println("mapm api sau khi sua : " + result.getMaPM());
-				System.out.println("mapm input: " + manguoiduyet);
-				if (result != null && result.getMaPM().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-																				// tìm manager cấp 2 theo id_staff
-																				// có tồn tại k và mã người duyệt
-																				// đúng là manager cấp 2 của staff
-																				// đó hay k?
-					// result.getMaTL().equals(manguoiduyet)
-					np.setTrangThai(2);
-					np.setMaNguoiDuyet(manguoiduyet);
-					np.setLyDoTuChoi(lydotuchoi);
-					ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
+						// lấy ra manager 1 của staff
+						String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/"
+								+ ot.getMaNhanVien();
+						RestTemplate restTemplate = new RestTemplate();
+						ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
 
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+						System.out.println("mã pm update ne: " + manager2.getMaPM());
+						if (manager2.getID() != null && manager2.getMaPM().equals(approve.getId_lead())) {
+							ot.setLyDoTuChoi(approve.getReason());
+
+							// goi service user de lay infor nhanvien
+							final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
+									+ manager.getMaNV();
+							RestTemplate restTemplate4 = new RestTemplate();
+							User result_staff = restTemplate4.getForObject(uri4, User.class);
+
+							ot.setTrangThai(2);
+							ot.setLyDoTuChoi(approve.getReason());
+							ot.setMaNguoiDuyet(approve.getId_lead());
+
+							ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
+							System.out.println("mã nhân viên cần update: " + manager.getMaNV());
+							repoNP.save(ot);
+						} else {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+									"Id reviewer or order id not valid", null);
+							return new ResponseEntity<>(resp, HttpStatus.OK);
+						}
+					}
 
 				}
-			} else if (Caculatebetweentwoday(np.getNgayBatDau(), np.getNgayKetThuc()) <= 3) {
-				// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-				// này hay không?
-
-				final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + np.getMaNhanVien();
-				System.out.println("api: " + uri);
-				RestTemplate restTemplate = new RestTemplate();
-				ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-				System.out.println("mapm api: " + result.getMaTL());
-				System.out.println("mapm input: " + manguoiduyet);
-				if (result != null && result.getMaTL().equals(manguoiduyet)) { // kiểm tra xem data trả về từ api
-																				// tìm
-																				// manager cấp 1 theo id_staff có
-																				// tồn
-																				// tại k và mã người duyệt đúng là
-																				// manager cấp 1 của staff đó hay k?
-					np.setTrangThai(2);
-					np.setMaNguoiDuyet(manguoiduyet);
-					np.setLyDoTuChoi(lydotuchoi);
-					ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(np));
-
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-
-				}
-
 			}
 
-			System.out.println("Trang thai nghi phep sau khi cap nhat: " + np.getTrangThai());
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Success", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Order id wrong or id manager wrong!", null);
-
-			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid OT id", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
+
 	}
 
-	// nhan vien xem lai lich su nghi phep va so phep con lai trong nam
-
+	
+	// nhân viên xem lại lịch sử cũng như số phép còn lại trong năm
 	@GetMapping("/get_np_history/{MaNV_input}")
 	public ResponseEntity<ApiResponse<NghiPhepResponse>> Get_np_history(
 			@PathVariable(value = "MaNV_input") String MaNV_input) {
