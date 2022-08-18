@@ -31,8 +31,11 @@ import Request.model.List_Staff;
 import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.NhanVien;
+import Request.model.WFH_Reponse;
 import Request.model.OT;
+import Request.model.OT_Response;
 import Request.model.ThamGiaDuAn;
+import Request.model.User;
 import Request.model.WFH;
 import Request.model.approve_ot;
 import Request.repository.NghiPhepRepository;
@@ -351,7 +354,7 @@ public class WFHController {
 	
 	
 	@GetMapping("/get_all_list_wfh_of_manager1")
-	public ResponseEntity<ApiResponse<List<WFH>>> Get_all_list_wfh_of_manager1(@RequestParam("id_lead") String id_lead_input,
+	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Get_all_list_wfh_of_manager1(@RequestParam("id_lead") String id_lead_input,
 			@RequestParam("status") int status_input) {
 		try {
 			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
@@ -360,7 +363,7 @@ public class WFHController {
 			List<String> staff = call.getListstaff();
 			
 			if (status_input<0 || status_input>2) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "invalid status", null);
+				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<List<WFH_Reponse>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
@@ -369,9 +372,10 @@ public class WFHController {
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, WFH.class);
 			if (otlst.isEmpty()) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Empty data", otlst);
+				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(0, "Empty data", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
+			
 			List<WFH> result = new ArrayList<WFH>();
 			for (WFH i : otlst) {
 				for (String y : staff) {
@@ -380,10 +384,23 @@ public class WFHController {
 					}
 				}
 			}
-			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", result);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			
+			List<WFH_Reponse> resp = new ArrayList<WFH_Reponse>();
+			for (WFH i : result) {
+				String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate1 = new RestTemplate();
+				User staff1 = restTemplate1.getForObject(uri1, User.class);
+				System.out.println(staff1.getID());
+				System.out.println(staff1.getHoTen());
+				WFH_Reponse temp = new WFH_Reponse(i, staff1);
+				resp.add(temp);
+				System.out.println(resp.isEmpty());
+			}
+			
+			ApiResponse<List<WFH_Reponse>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "ID lead not exist", null);
+			ApiResponse<List<WFH_Reponse>>  resp = new ApiResponse<>(1, "ID lead not exist", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}

@@ -1,27 +1,20 @@
 package Request.model;
 
 import java.time.LocalDate;
+import java.time.Period;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import javax.annotation.PostConstruct;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-@Document(collection = "WFH")
-
-public class WFH {
-
-	// @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+@Document(collection = "NGHIPHEP")
+public class NghiPhep_Response {
 	@Id
 	private String ID;
 	private String MaNguoiDuyet;
 	private String MaNhanVien;
-	// @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
+	private String TenNhanVien;
+	private String LoaiNghiPhep;
 	private LocalDate NgayBatDau;
 	private LocalDate NgayKetThuc;
 	private String LyDo;
@@ -50,6 +43,23 @@ public class WFH {
 
 	public void setMaNhanVien(String maNhanVien) {
 		MaNhanVien = maNhanVien;
+	}
+
+	
+	public String getTenNhanVien() {
+		return TenNhanVien;
+	}
+
+	public void setTenNhanVien(String tenNhanVien) {
+		TenNhanVien = tenNhanVien;
+	}
+
+	public String getLoaiNghiPhep() {
+		return LoaiNghiPhep;
+	}
+
+	public void setLoaiNghiPhep(String loaiNghiPhep) {
+		LoaiNghiPhep = loaiNghiPhep;
 	}
 
 	public LocalDate getNgayBatDau() {
@@ -92,21 +102,41 @@ public class WFH {
 		TrangThai = trangThai;
 	}
 
-	public WFH(String iD, String maNguoiDuyet, String maNhanVien, LocalDate ngayBatDau, LocalDate ngayKetThuc,
-			String lyDo, String lyDoTuChoi, int trangThai) {
+
+	
+
+	public NghiPhep_Response(String iD, String maNguoiDuyet, String maNhanVien, String tenNhanVien, String loaiNghiPhep,
+			LocalDate ngayBatDau, LocalDate ngayKetThuc, String lyDo, String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;
-		MaNguoiDuyet = maNguoiDuyet;
+		MaNguoiDuyet = "";
 		MaNhanVien = maNhanVien;
+		TenNhanVien = tenNhanVien;
+		LoaiNghiPhep = loaiNghiPhep;
 		NgayBatDau = ngayBatDau;
 		NgayKetThuc = ngayKetThuc;
 		LyDo = lyDo;
-		LyDoTuChoi = lyDoTuChoi;
-		TrangThai = trangThai;
+		LyDoTuChoi = "";
+		TrangThai = 0;
+	}
+	
+	public NghiPhep_Response(NghiPhep request, User NhanVien) {
+		super();
+		ID = request.getID();
+		MaNguoiDuyet = request.getMaNguoiDuyet();
+		MaNhanVien = request.getMaNhanVien();
+		TenNhanVien = NhanVien.getHoTen();
+		LoaiNghiPhep = request.getLoaiNghiPhep();
+		NgayBatDau = request.getNgayBatDau();
+		NgayKetThuc = request.getNgayKetThuc();
+		LyDo = request.getLyDo();
+		LyDoTuChoi = request.getLyDoTuChoi();
+		TrangThai = request.getTrangThai();
+		
 	}
 	
 	
-	public WFH() {
+	public NghiPhep_Response() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

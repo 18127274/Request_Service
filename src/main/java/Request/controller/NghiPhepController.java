@@ -31,7 +31,9 @@ import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.NghiPhepResponse;
 import Request.model.OT;
+import Request.model.OT_Response;
 import Request.model.ThamGiaDuAn;
+import Request.model.NghiPhep_Response;
 import Request.model.WFH;
 import Request.repository.DuAnRepository;
 import Request.repository.NghiPhepRepository;
@@ -109,7 +111,7 @@ public class NghiPhepController {
 	
 	//lay ra nhung don nghi phep duyet duoc theo role (manager1, manager2)
 	@GetMapping("/get_all_list_nghiphep_by_role")
-	public ResponseEntity<ApiResponse<List<NghiPhep>>> Get_all_list_nghiphep_by_role(
+	public ResponseEntity<ApiResponse<List<NghiPhep_Response>>> Get_all_list_nghiphep_by_role(
 			@RequestParam("id_reviewer") String id_reviewer,
 			@RequestParam("status") int status_input,
 			@RequestParam("role") int role) {
@@ -124,7 +126,7 @@ public class NghiPhepController {
 				List<String> staff = call.getListstaff();
 				
 				if (status_input<0 || status_input>2) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				
@@ -133,7 +135,7 @@ public class NghiPhepController {
 				q.addCriteria(Criteria.where("TrangThai").is(status_input));
 				otlst = mongoTemplate.find(q, NghiPhep.class);
 				if (otlst.isEmpty()) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				List<NghiPhep> result = new ArrayList<NghiPhep>();
@@ -145,11 +147,21 @@ public class NghiPhepController {
 					}
 				}
 				if(result.isEmpty()) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", null);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
-				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
-				return new ResponseEntity<>(resp, HttpStatus.OK);
+				
+				List<NghiPhep_Response> resp = new ArrayList<NghiPhep_Response>();
+				for (NghiPhep i : result) {
+					String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+					RestTemplate restTemplate1 = new RestTemplate();
+					User staff1 = restTemplate1.getForObject(uri1, User.class);
+					NghiPhep_Response temp = new NghiPhep_Response(i,staff1);
+					resp.add(temp);
+				}
+				
+				ApiResponse<List<NghiPhep_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+				return new ResponseEntity<>(resp1, HttpStatus.OK);
 			}
 			else if(role == 5) {
 				//gọi api lấy ra director của 1 thằng team leader
@@ -171,7 +183,7 @@ public class NghiPhepController {
 				
 				System.out.println("cac3");
 				if (status_input<0 || status_input>2) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				System.out.println("cac4");
@@ -182,7 +194,7 @@ public class NghiPhepController {
 				System.out.println("cac5");
 				
 				if (otlst.isEmpty()) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", otlst);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				System.out.println("cac6");
@@ -199,18 +211,27 @@ public class NghiPhepController {
 					}
 				}
 				if(result.isEmpty()) {
-					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", null);
+					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 				
-				ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", result);
-				return new ResponseEntity<>(resp, HttpStatus.OK);
+				List<NghiPhep_Response> resp = new ArrayList<NghiPhep_Response>();
+				for (NghiPhep i : result) {
+					String uri2 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+					RestTemplate restTemplate2 = new RestTemplate();
+					User staff1 = restTemplate2.getForObject(uri2, User.class);
+					NghiPhep_Response temp = new NghiPhep_Response(i,staff1);
+					resp.add(temp);
+				}
+				
+				ApiResponse<List<NghiPhep_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+				return new ResponseEntity<>(resp1, HttpStatus.OK);
 			}
 			
-			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Empty data", null);
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "ID reviewer not exist or role input wrong!", null);
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "ID reviewer not exist or role input wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
