@@ -14,7 +14,7 @@ public class NghiPhep_Response {
 	private String MaNguoiDuyet;
 	private String MaNhanVien;
 	private String TenNhanVien;
-	private String LoaiNghiPhep;
+	private int LoaiNghiPhep;
 	private LocalDate NgayBatDau;
 	private LocalDate NgayKetThuc;
 	private String LyDo;
@@ -54,11 +54,11 @@ public class NghiPhep_Response {
 		TenNhanVien = tenNhanVien;
 	}
 
-	public String getLoaiNghiPhep() {
+	public int getLoaiNghiPhep() {
 		return LoaiNghiPhep;
 	}
 
-	public void setLoaiNghiPhep(String loaiNghiPhep) {
+	public void setLoaiNghiPhep(int loaiNghiPhep) {
 		LoaiNghiPhep = loaiNghiPhep;
 	}
 
@@ -105,7 +105,7 @@ public class NghiPhep_Response {
 
 	
 
-	public NghiPhep_Response(String iD, String maNguoiDuyet, String maNhanVien, String tenNhanVien, String loaiNghiPhep,
+	public NghiPhep_Response(String iD, String maNguoiDuyet, String maNhanVien, String tenNhanVien, int loaiNghiPhep,
 			LocalDate ngayBatDau, LocalDate ngayKetThuc, String lyDo, String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;

@@ -206,67 +206,46 @@ public class YeuCauThietBiController {
 				return new ResponseEntity<>(resp1, HttpStatus.OK);
 			}
 			else if(role == 5 && status_input == 5) {
-				//gọi api lấy ra director của 1 thằng team leader
-				System.out.println("vao 5");
-				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/" + id_reviewer;
-				RestTemplate restTemplate1 = new RestTemplate();	
-				List_ThamGiaDuAn call1 = restTemplate1.getForObject(uri1, List_ThamGiaDuAn.class);		
-				List<ThamGiaDuAn> infor_tl = call1.getListstaff();			
-				ThamGiaDuAn[] array = infor_tl.toArray(new ThamGiaDuAn[0]);		
-				System.out.println(array[0].getMaTL());
-							
-				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + array[0].getMaTL();
-				System.out.println(uri);
-				RestTemplate restTemplate = new RestTemplate();
-
-				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
-				List<String> staff = call.getListstaff();
-
-				System.out.println("status: " + status_input);
-				System.out.println("tao vo roi ne");
-				if (status_input<0 || status_input>5) {
-					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1, "invalid status", null);
-					return new ResponseEntity<>(resp, HttpStatus.OK);
-				}
-				System.out.println("cac4");
-				List<YeuCauThietBi> otlst = new ArrayList<YeuCauThietBi>();
-				Query q = new Query();
-				q.addCriteria(Criteria.where("TrangThai").is(5));
-				otlst = mongoTemplate.find(q, YeuCauThietBi.class);
-					
-				if (otlst.isEmpty()) {
-					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(0, "Empty data", null);
-					return new ResponseEntity<>(resp, HttpStatus.OK);
-				}
-		
-				List<YeuCauThietBi> result = new ArrayList<YeuCauThietBi>();
-				for (YeuCauThietBi i : otlst) {
-					for (String y : staff ) {
-			
-						if(i.getMaNhanVien().equals(y)) {
-							System.out.println("co data" );
-							result.add(i);
-						}
-					}
-				}
-				if(result.isEmpty()) {
-					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(0, "Empty data", null);
-					return new ResponseEntity<>(resp, HttpStatus.OK);
-				}
-				System.out.println("do dai cac don yctb co stt 5: " + result.size());
-				//them ten
-				List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
-				for (YeuCauThietBi i : result) {
-					String uri2 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
-					System.out.println("api1: " + uri2);
-					RestTemplate restTemplate2 = new RestTemplate();
-					User staff1 = restTemplate2.getForObject(uri2, User.class);
-					YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
-					resp.add(temp);
-				}
+				System.out.println("vao 1");
 				
-				ApiResponse<List<YeuCauThietBi_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
-				return new ResponseEntity<>(resp1, HttpStatus.OK);
+				final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + id_reviewer;
+				System.out.println("api: " + uri);
+				RestTemplate restTemplate2 = new RestTemplate();
+				User result = restTemplate2.getForObject(uri, User.class);
+						
+				if(result.getID() != "" && result.getChucVu() == 5) {
+					List<YeuCauThietBi> otlst = new ArrayList<YeuCauThietBi>();
+					Query q = new Query();
+					q.addCriteria(Criteria.where("TrangThai").is(5));
+					otlst = mongoTemplate.find(q, YeuCauThietBi.class);
+					if(otlst.isEmpty()) {
+						ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(0, "Empty data", null);
+						return new ResponseEntity<>(resp, HttpStatus.OK);
+					}
+					//tra ve them ten nhan vien
+					List<YeuCauThietBi> result1 = new ArrayList<YeuCauThietBi>();
+					repoYCTB.findAll().forEach(result1::add);
+					System.out.println("size cua yctb: " + result1.size());
+					
+					
+					List<YeuCauThietBi_Response> resp = new ArrayList<YeuCauThietBi_Response>();
+					for (YeuCauThietBi i : result1) {
+						if(i.getTrangThai() == 5) {
+							String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+							System.out.println("api1: " + uri1);
+							RestTemplate restTemplate1 = new RestTemplate();
+							User staff1 = restTemplate1.getForObject(uri1, User.class);
+							YeuCauThietBi_Response temp = new YeuCauThietBi_Response(i, staff1);
+							resp.add(temp);
+						}
+						
+					}
+					
+					ApiResponse<List<YeuCauThietBi_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+					return new ResponseEntity<>(resp1, HttpStatus.OK);
+				}		
+				ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1, "id_reviewer or status is wrong!", null);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			else if(role == 3 && status_input == 3) {
 				

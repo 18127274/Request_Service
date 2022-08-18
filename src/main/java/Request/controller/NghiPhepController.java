@@ -167,8 +167,7 @@ public class NghiPhepController {
 			} else if (role == 5) {
 				// gọi api lấy ra director của 1 thằng team leader
 
-				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/"
-						+ id_reviewer;
+				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/"+ id_reviewer;
 				RestTemplate restTemplate1 = new RestTemplate();
 				List_ThamGiaDuAn call1 = restTemplate1.getForObject(uri1, List_ThamGiaDuAn.class);
 				List<ThamGiaDuAn> infor_tl = call1.getListstaff();
