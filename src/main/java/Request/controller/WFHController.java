@@ -27,12 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import Request.model.ApiResponse;
+import Request.model.List_Staff;
 import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.NhanVien;
 import Request.model.OT;
 import Request.model.ThamGiaDuAn;
 import Request.model.WFH;
+import Request.model.approve_ot;
 import Request.repository.NghiPhepRepository;
 import Request.repository.NhanVienRepository;
 import Request.repository.OTRepository;
@@ -204,46 +206,69 @@ public class WFHController {
 //		return daysDiff;
 //	}
 
-	// manager cấp 1/ manager cấp 2 chấp thuận đơn yêu cầu.
 //	@PutMapping("/approve_request_wfh")
-//	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestParam(value = "id", required = false) String id,
-//			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet) {
-//
+//	public ResponseEntity<ApiResponse<List<WFH>>> Approve_request_wfh(@RequestBody approve_ot approve
+////			@RequestParam("MaOT_input") String MaOT_input,
+////			@RequestParam("TinhTrang_input") String TinhTrang_input,
+////			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
+////			@RequestParam("MaNguoiDuyet_input") String MaNguoiDuyet_input
+//			){
 //		try {
-//			Query q = new Query();
-//			q.addCriteria(Criteria.where("ID").is(id));
-//			WFH wfh = mongoTemplate.findOne(q, WFH.class);
-//			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-//			// này hay không?
-//			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
-//			System.out.println("api: " + uri);
-//			RestTemplate restTemplate = new RestTemplate();
-//			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-//			System.out.println(result);
-//			System.out.println(result.getMaTL());
-//			System.out.println(manguoiduyet);
-//
-//			if (result != null && result.getMaTL().equals(manguoiduyet)) {
-//				wfh.setTrangThai(1);
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			} else {
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Order_id wrong or manager level 1 id wrong", null);
+//			List<WFH> result = new ArrayList<WFH>();
+//			if(!approve.getAction().toUpperCase().equals("ACCEPT") && !(approve.getAction().toUpperCase().equals("REJECT"))) {
+//				ApiResponse<List<WFH>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
 //				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 //			}
+//			if(approve.getAction().toUpperCase().equals("REJECT") && (approve.getReason()==null || approve.getReason().equals(""))) {
+//				ApiResponse<List<WFH>> resp = new ApiResponse<>(1, "Invalid reason", null);
+//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//			}
+////			 || (approve.getAction().equals("REJECT") && (approve.getReason().equals("") || approve.getReason() == null
+//			for (String request_id : approve.getList_id_request()) {
+//				//Find request 
+//				Query q = new Query();
+//				q.addCriteria(Criteria.where("ID").is(request_id));
+//				OT ot = mongoTemplate.findOne(q, OT.class);
+//				//Validate manager authority
+//				String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/" + ot.getMaNhanVien();
+//				RestTemplate restTemplate = new RestTemplate();
+//				ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
+//				
+//				if(manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
+//					ot.setLyDoTuChoi(approve.getReason());
+//					if (approve.getAction().toUpperCase().equals("ACCEPT")) {
+//						ot.setTrangThai(1);
+//						ot.setLyDoTuChoi("");
+//					}
+//					else {
+//						ot.setTrangThai(2);
+//					}
+//					ot.setMaNguoiDuyet(approve.getId_lead());
+//					repoOT.save(ot);
+//					result.add(ot);					
+//				}
+//				else {
+//					ApiResponse<List<OT>> resp = new ApiResponse<>(1, "invalid input or Leader don't have permission", null);
+//					return new ResponseEntity<>(resp, HttpStatus.OK);					
+//				}
+//			}
+//			
+//			ApiResponse<List<OT>> resp = new ApiResponse<>(0, "Success", result);
+//			return new ResponseEntity<>(resp, HttpStatus.OK);
 //		} catch (Exception e) {
-//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Invalid OT id", null);
+//			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 //		}
 //	}
 	
+	// manager cấp 1/ manager cấp 2 chấp thuận đơn yêu cầu.
 	@PutMapping("/approve_request_wfh")
-	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestBody WFH _wfh, @RequestParam("action") String action) {
+	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestParam(value = "id", required = false) String id,
+			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet) {
 
 		try {
 			Query q = new Query();
-			q.addCriteria(Criteria.where("ID").is(_wfh.getID()));
+			q.addCriteria(Criteria.where("ID").is(id));
 			WFH wfh = mongoTemplate.findOne(q, WFH.class);
 			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
 			// này hay không?
@@ -251,44 +276,78 @@ public class WFHController {
 			System.out.println("api: " + uri);
 			RestTemplate restTemplate = new RestTemplate();
 			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-			
-			System.out.println(wfh);
 			System.out.println(result);
 			System.out.println(result.getMaTL());
-			System.out.println(_wfh.getMaNguoiDuyet());
-			
-			if(action.equals("ACCEPT") == true)
-			{
-				if (result != null && result.getMaTL().equals(wfh.getMaNguoiDuyet())) {
-					wfh.setTrangThai(1);
-					wfh.setMaNguoiDuyet(_wfh.getMaNguoiDuyet());
-					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
-					// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-				} else {
-					ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-				}
+			System.out.println(manguoiduyet);
+
+			if (result != null && result.getMaTL().equals(manguoiduyet)) {
+				wfh.setTrangThai(1);
+				wfh.setMaNguoiDuyet(manguoiduyet);
+				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
+				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			} else {
+				ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Order_id wrong or manager level 1 id wrong", null);
+				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			else if(action.equals("REJECT") == true) {
-				if (result != null && result.getMaTL().equals(_wfh.getMaNguoiDuyet())) {
-					wfh.setTrangThai(2);
-					wfh.setMaNguoiDuyet(_wfh.getMaNguoiDuyet());
-					wfh.setLyDoTuChoi(_wfh.getLyDoTuChoi());
-					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-				} else {
-					ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
-					return new ResponseEntity<>(resp, HttpStatus.CREATED);
-				}
-			}
-			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
-			
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+//	@PutMapping("/approve_request_wfh")
+//	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestBody WFH _wfh, @RequestParam("action") String action) {
+//
+//		try {
+//			Query q = new Query();
+//			q.addCriteria(Criteria.where("ID").is(_wfh.getID()));
+//			WFH wfh = mongoTemplate.findOne(q, WFH.class);
+//			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
+//			// này hay không?
+//			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
+//			System.out.println("api: " + uri);
+//			RestTemplate restTemplate = new RestTemplate();
+//			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
+//			
+//			System.out.println(wfh);
+//			System.out.println(result);
+//			System.out.println(result.getMaTL());
+//			System.out.println(_wfh.getMaNguoiDuyet());
+//			
+//			if(action.equals("ACCEPT") == true)
+//			{
+//				if (result != null && result.getMaTL().equals(wfh.getMaNguoiDuyet())) {
+//					wfh.setTrangThai(1);
+//					wfh.setMaNguoiDuyet(_wfh.getMaNguoiDuyet());
+//					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
+//					// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
+//					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//				} else {
+//					ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
+//					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//				}
+//			}
+//			else if(action.equals("REJECT") == true) {
+//				if (result != null && result.getMaTL().equals(_wfh.getMaNguoiDuyet())) {
+//					wfh.setTrangThai(2);
+//					wfh.setMaNguoiDuyet(_wfh.getMaNguoiDuyet());
+//					wfh.setLyDoTuChoi(_wfh.getLyDoTuChoi());
+//					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
+//					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//				} else {
+//					ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
+//					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+//				}
+//			}
+//			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Invalid input or this reviewer doesn't have permission", null);
+//			return new ResponseEntity<>(resp, HttpStatus.OK);
+//			
+//		} catch (Exception e) {
+//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//		}
+//	}
+	
+
 	
 	
 	@GetMapping("/get_all_list_wfh_of_manager1")
@@ -297,8 +356,8 @@ public class WFHController {
 		try {
 			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
 			RestTemplate restTemplate = new RestTemplate();
-			List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-			List<ThamGiaDuAn> staff = call.getListstaff();
+			List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+			List<String> staff = call.getListstaff();
 			
 			if (status_input<0 || status_input>2) {
 				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "invalid status", null);
@@ -315,8 +374,8 @@ public class WFHController {
 			}
 			List<WFH> result = new ArrayList<WFH>();
 			for (WFH i : otlst) {
-				for (ThamGiaDuAn y : staff) {
-					if(i.getMaNhanVien().equals(y.getMaNV())) {
+				for (String y : staff) {
+					if(i.getMaNhanVien().equals(y)) {
 						result.add(i);
 					}
 				}

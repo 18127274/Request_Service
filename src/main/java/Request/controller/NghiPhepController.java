@@ -26,6 +26,7 @@ import Request.model.Check_in_out;
 import Request.model.DuAn;
 import Request.model.User;
 import Request.model.ListWFH;
+import Request.model.List_Staff;
 import Request.model.List_ThamGiaDuAn;
 import Request.model.NghiPhep;
 import Request.model.NghiPhepResponse;
@@ -116,11 +117,11 @@ public class NghiPhepController {
 			System.out.println(role);
 			System.out.println(status_input);
 			System.out.println(id_reviewer);
-			if(role == 4) {
+			if(role == 4) {	
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_reviewer;
 				RestTemplate restTemplate = new RestTemplate();
-				List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-				List<ThamGiaDuAn> staff = call.getListstaff();
+				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+				List<String> staff = call.getListstaff();
 				
 				if (status_input<0 || status_input>2) {
 					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
@@ -137,8 +138,8 @@ public class NghiPhepController {
 				}
 				List<NghiPhep> result = new ArrayList<NghiPhep>();
 				for (NghiPhep i : otlst) {
-					for (ThamGiaDuAn y : staff) {
-						if(i.getMaNhanVien().equals(y.getMaNV()) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) <= 3) {
+					for (String y : staff) {
+						if(i.getMaNhanVien().equals(y) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) <= 3) {
 							result.add(i);
 						}
 					}
@@ -156,17 +157,18 @@ public class NghiPhepController {
 				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/" + id_reviewer;
 				RestTemplate restTemplate1 = new RestTemplate();
 				List_ThamGiaDuAn call1 = restTemplate1.getForObject(uri1, List_ThamGiaDuAn.class);	
-				List<ThamGiaDuAn> infor_tl = call1.getListstaff();		
+				List<ThamGiaDuAn> infor_tl = call1.getListstaff();	
+				
 				ThamGiaDuAn[] array = infor_tl.toArray(new ThamGiaDuAn[0]);	
-				System.out.println(array[0].getMaTL());			
+				System.out.println("ma tl: " + array[0].getMaTL());			
 		
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + array[0].getMaTL();
 				System.out.println(uri);
 				RestTemplate restTemplate = new RestTemplate();
 				System.out.println("cac1");
-				List_ThamGiaDuAn call = restTemplate.getForObject(uri, List_ThamGiaDuAn.class);
-				System.out.println("cac2");
-				List<ThamGiaDuAn> staff = call.getListstaff();
+				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
+				List<String> staff = call.getListstaff();
+				
 				System.out.println("cac3");
 				if (status_input<0 || status_input>2) {
 					ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "invalid status", null);
@@ -186,11 +188,12 @@ public class NghiPhepController {
 				System.out.println("cac6");
 				List<NghiPhep> result = new ArrayList<NghiPhep>();
 				for (NghiPhep i : otlst) {
-					for (ThamGiaDuAn y : staff ) {
+					for (String y : staff ) {
 						System.out.println("ngay bat dau: " + i.getNgayBatDau());
 						System.out.println("ngay ket thuc: " + i.getNgayKetThuc());
 						System.out.println(Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()));
-						if(i.getMaNhanVien().equals(y.getMaNV()) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) > 3) {
+						if(i.getMaNhanVien().equals(y) && Caculatebetweentwoday(i.getNgayBatDau(), i.getNgayKetThuc()) > 3) {
+							System.out.println("co data");
 							result.add(i);
 						}
 					}

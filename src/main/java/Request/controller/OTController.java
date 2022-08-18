@@ -24,7 +24,9 @@ import org.springframework.web.client.RestTemplate;
 import Request.model.ApiResponse;
 import Request.model.List_Staff;
 import Request.model.OT;
+import Request.model.OT_Response;
 import Request.model.ThamGiaDuAn;
+import Request.model.User;
 import Request.model.approve_ot;
 import Request.model.List_ThamGiaDuAn;
 import Request.repository.NghiPhepRepository;
@@ -51,7 +53,7 @@ public class OTController {
 	MongoOperations mongoOperation;
 
 	@GetMapping("/get_ot_id/{MaOT_input}")
-	public ResponseEntity<ApiResponse<List<OT>>> XemDSOT_ID(@PathVariable(value = "MaOT_input") String MaOT_input) {
+	public ResponseEntity<ApiResponse<List<OT_Response>>> XemDSOT_ID(@PathVariable(value = "MaOT_input") String MaOT_input) {
 
 		try {
 			List<OT> otlst = new ArrayList<OT>();
@@ -61,10 +63,18 @@ public class OTController {
 			if (otlst.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			List<OT_Response> resp = new ArrayList<OT_Response>();
+			for (OT i : otlst) {
+				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				User staff = restTemplate.getForObject(uri, User.class);
+				OT_Response temp = new OT_Response(i,staff);
+				resp.add(temp);
+			}
+			ApiResponse<List<OT_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
@@ -90,7 +100,7 @@ public class OTController {
 	}
 
 	@GetMapping("/unaccepted_ot")
-	public ResponseEntity<ApiResponse<List<OT>>> XemDSOTChuaDuyet() {
+	public ResponseEntity<ApiResponse<List<OT_Response>>> XemDSOTChuaDuyet() {
 		try {
 			List<OT> otlst = new ArrayList<OT>();
 			Query q = new Query();
@@ -100,17 +110,26 @@ public class OTController {
 			if (otlst.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			System.out.println(otlst.size());
-			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			
+			List<OT_Response> resp = new ArrayList<OT_Response>();
+			for (OT i : otlst) {
+				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				User staff = restTemplate.getForObject(uri, User.class);
+				OT_Response temp = new OT_Response(i,staff);
+				resp.add(temp);
+			}
+			
+			ApiResponse<List<OT_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
 	@GetMapping("/get_ot_nv/{MaNV_input}")
-	public ResponseEntity<ApiResponse<List<OT>>> XemDSOT_MaNV(@PathVariable(value = "MaNV_input") String MaNV_input) {
+	public ResponseEntity<ApiResponse<List<OT_Response>>> XemDSOT_MaNV(@PathVariable(value = "MaNV_input") String MaNV_input) {
 
 		try {
 			List<OT> otlst = new ArrayList<OT>();
@@ -120,16 +139,25 @@ public class OTController {
 			if (otlst.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", otlst);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			List<OT_Response> resp = new ArrayList<OT_Response>();
+			for (OT i : otlst) {
+				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				User staff = restTemplate.getForObject(uri, User.class);
+				OT_Response temp = new OT_Response(i,staff);
+				resp.add(temp);
+			}
+			
+			ApiResponse<List<OT_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Internal error", null);
+			ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
 	@PutMapping("/approve_ot")
-	public ResponseEntity<ApiResponse<List<OT>>> approve_ot(@RequestBody approve_ot approve
+	public ResponseEntity<ApiResponse<List<OT_Response>>> approve_ot(@RequestBody approve_ot approve
 //			@RequestParam("MaOT_input") String MaOT_input,
 //			@RequestParam("TinhTrang_input") String TinhTrang_input,
 //			@RequestParam("LyDoTuChoi_input") String LyDoTuChoi_input,
@@ -138,11 +166,11 @@ public class OTController {
 		try {
 			List<OT> result = new ArrayList<OT>();
 			if(!approve.getAction().toUpperCase().equals("ACCEPT") && !(approve.getAction().toUpperCase().equals("REJECT"))) {
-				ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
+				ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
 			if(approve.getAction().toUpperCase().equals("REJECT") && (approve.getReason()==null || approve.getReason().equals(""))) {
-				ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Invalid reason", null);
+				ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Invalid reason", null);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
 //			 || (approve.getAction().equals("REJECT") && (approve.getReason().equals("") || approve.getReason() == null
@@ -170,15 +198,25 @@ public class OTController {
 					result.add(ot);					
 				}
 				else {
-					ApiResponse<List<OT>> resp = new ApiResponse<>(1, "invalid input or Leader don't have permission", null);
+					ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "invalid input or Leader don't have permission", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);					
 				}
 			}
+			List<OT_Response> resp = new ArrayList<OT_Response>();
+			for (OT i : result) {
+				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				User staff = restTemplate.getForObject(uri, User.class);
+				OT_Response temp = new OT_Response(i,staff);
+				resp.add(temp);
+			}
 			
-			ApiResponse<List<OT>> resp = new ApiResponse<>(0, "Success", result);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			ApiResponse<List<OT_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
+//			ApiResponse<List<OT>> resp = new ApiResponse<>(0, "Success", result);
+//			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<OT>> resp = new ApiResponse<>(1, "Invalid OT id", null);
+			ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "Invalid OT id", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
@@ -215,7 +253,7 @@ public class OTController {
 	}
 
 	@PostMapping("/request_ot")
-	public ResponseEntity<ApiResponse<OT>> Request_ot(@RequestBody OT ot) {
+	public ResponseEntity<ApiResponse<OT_Response>> Request_ot(@RequestBody OT ot) {
 		try {
 			// DateTimeFormatter dateTimeFormatter =
 			// DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -226,16 +264,22 @@ public class OTController {
 			// System.out.println(localDateObj.getClass().getName());
 			ot.setID(UUID.randomUUID().toString());
 			OT _ot = repoOT.save(new OT(ot.getID(), ot.getMaNhanVien(), ot.getNgayOT(), ot.getSoGio(), ot.getLyDoOT()));
-			ApiResponse<OT> resp = new ApiResponse<OT>(0, "Success", _ot);
-			return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			
+			String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + _ot.getMaNhanVien();
+			RestTemplate restTemplate = new RestTemplate();
+			User staff = restTemplate.getForObject(uri, User.class);
+			OT_Response resp = new OT_Response(_ot,staff);
+			
+			ApiResponse<OT_Response> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.CREATED);
 		} catch (Exception e) {
-			ApiResponse<OT> resp = new ApiResponse<OT>(1, "Internal error", null);
+			ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 	
 	@GetMapping("/list_ot_manager")
-	public ResponseEntity<ApiResponse<List<OT>>> list_ot_manager(@RequestParam("id_lead") String id_lead_input,
+	public ResponseEntity<ApiResponse<List<OT_Response>>> list_ot_manager(@RequestParam("id_lead") String id_lead_input,
 			@RequestParam("status") int status_input) {
 		try {
 			//Tra ve list staff cua manager
@@ -246,7 +290,7 @@ public class OTController {
 			
 			//Check input status
 			if (status_input<0 || status_input>2) {
-				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "invalid status", null);
+				ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			
@@ -256,7 +300,7 @@ public class OTController {
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
 			otlst = mongoTemplate.find(q, OT.class);
 			if (otlst.isEmpty()) {
-				ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Empty data", otlst);
+				ApiResponse<List<OT_Response>> resp = new ApiResponse<>(0, "Empty data", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			List<OT> result = new ArrayList<OT>();
@@ -269,10 +313,22 @@ public class OTController {
 					}
 				}
 			}
-			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", result);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			
+			List<OT_Response> resp = new ArrayList<OT_Response>();
+			for (OT i : result) {
+				String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
+				RestTemplate restTemplate1 = new RestTemplate();
+				User staff1 = restTemplate1.getForObject(uri1, User.class);
+				OT_Response temp = new OT_Response(i,staff1);
+				resp.add(temp);
+			}
+			
+			ApiResponse<List<OT_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
+//			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", result);
+//			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(1, "ID lead not exist", null);
+			ApiResponse<List<OT_Response>> resp = new ApiResponse<>(1, "ID lead not exist", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
