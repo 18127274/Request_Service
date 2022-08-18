@@ -13,7 +13,7 @@ public class NghiPhep {
 	private String ID;
 	private String MaNguoiDuyet;
 	private String MaNhanVien;
-	private String LoaiNghiPhep;
+	private int LoaiNghiPhep;
 	private LocalDate NgayBatDau;
 	private LocalDate NgayKetThuc;
 	private String LyDo;
@@ -44,11 +44,11 @@ public class NghiPhep {
 		MaNhanVien = maNhanVien;
 	}
 
-	public String getLoaiNghiPhep() {
+	public int getLoaiNghiPhep() {
 		return LoaiNghiPhep;
 	}
 
-	public void setLoaiNghiPhep(String loaiNghiPhep) {
+	public void setLoaiNghiPhep(int loaiNghiPhep) {
 		LoaiNghiPhep = loaiNghiPhep;
 	}
 
@@ -92,7 +92,7 @@ public class NghiPhep {
 		TrangThai = trangThai;
 	}
 
-	public NghiPhep(String iD, String maNguoiDuyet, String maNhanVien, String loaiNghiPhep, LocalDate ngayBatDau,
+	public NghiPhep(String iD, String maNguoiDuyet, String maNhanVien, int loaiNghiPhep, LocalDate ngayBatDau,
 			LocalDate ngayKetThuc, String lyDo, String lyDoTuChoi, int trangThai) {
 		super();
 		ID = iD;
