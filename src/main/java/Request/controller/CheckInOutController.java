@@ -156,7 +156,7 @@ public class CheckInOutController {
 						&& i.getGioBatDau().getDayOfMonth() == currentdate.getDayOfMonth()
 						&& i.getGioBatDau().getMonthValue() == currentdate.getMonthValue()
 						&& i.getGioBatDau().getYear() == currentdate.getYear()) {
-//					i.setGioKetThuc(LocalDateTime.now().plusHours(7));
+					i.setGioKetThuc(LocalDateTime.now());
 					repoCheckIn.save(i);
 //					i.setGioKetThuc(i.getGioKetThuc().minusHours(7));
 					ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", i);

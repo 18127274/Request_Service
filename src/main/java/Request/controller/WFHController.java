@@ -177,6 +177,8 @@ public class WFHController {
 	public ResponseEntity<ApiResponse<WFH>> Request_wfh(@RequestBody WFH wfh) {
 		try {
 			// check xem nhân viên này có đơn nào đang chưa được duyệt hay không?
+			LocalDate localDate = LocalDate.now();
+			System.out.println(localDate);
 			LocalTime localTime = LocalTime.now();
 			
 			System.out.println(localTime);
