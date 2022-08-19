@@ -1,6 +1,7 @@
 package Request.controller;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.ArrayList;
 
@@ -176,6 +177,10 @@ public class WFHController {
 	public ResponseEntity<ApiResponse<WFH>> Request_wfh(@RequestBody WFH wfh) {
 		try {
 			// check xem nhân viên này có đơn nào đang chưa được duyệt hay không?
+			LocalTime localTime = LocalTime.now();
+			
+			System.out.println(localTime);
+			
 			List<WFH> wfhlst = new ArrayList<WFH>();
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
@@ -188,8 +193,8 @@ public class WFHController {
 			if (wfhlst.isEmpty() == true) {
 				System.out.println("khong co thang nhan vien nay");
 				wfh.setID(UUID.randomUUID().toString());
-				WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau().plusDays(1),
-						wfh.getNgayKetThuc().plusDays(1), wfh.getLyDo(), "", 0));
+				WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau(),
+						wfh.getNgayKetThuc(), wfh.getLyDo(), "", 0));
 				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}

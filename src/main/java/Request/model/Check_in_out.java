@@ -51,7 +51,7 @@ public class Check_in_out {
 		super();
 		ID = iD;
 		MaNV = maNV;
-		GioBatDau = LocalDateTime.now().plusHours(7);
+		GioBatDau = LocalDateTime.now();
 		GioKetThuc = null;
 	}
 

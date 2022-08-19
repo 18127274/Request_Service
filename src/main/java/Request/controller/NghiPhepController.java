@@ -46,6 +46,7 @@ import Request.repository.WFHRepository;
 
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.text.SimpleDateFormat;
@@ -458,6 +459,9 @@ public class NghiPhepController {
 	@PostMapping("/request_nghiphep")
 	public ResponseEntity<ApiResponse<NghiPhep>> Request_nghiphep(@RequestBody NghiPhep np) {
 		try {
+			LocalTime localTime = LocalTime.now();
+
+			System.out.println(localTime);
 			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
 			Query q = new Query();
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
@@ -483,7 +487,7 @@ public class NghiPhepController {
 				System.out.println("khong co thang nhan vien nay");
 				np.setID(UUID.randomUUID().toString());
 				NghiPhep _np = repoNP.save(new NghiPhep(np.getID(), "", np.getMaNhanVien(), np.getLoaiNghiPhep(),
-						np.getNgayBatDau().plusDays(1), np.getNgayKetThuc().plusDays(1), np.getLyDo(), "", 0));
+						np.getNgayBatDau(), np.getNgayKetThuc(), np.getLyDo(), "", 0));
 				ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
@@ -512,11 +516,11 @@ public class NghiPhepController {
 			}
 			System.out.println("list id: " + approve.getList_id_request());
 			System.out.println("list id: " + approve.getAction());
-			
+
 			int check = 0;
 			// set điều kiện để manager cấp 1 hay là manager cấp 2 duyệt đơn
 			// if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
-			
+
 			if (approve.getAction().toUpperCase().equals("ACCEPT")) { // check xem loai action la reject hay accept
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
@@ -532,7 +536,7 @@ public class NghiPhepController {
 
 						System.out.println("ngay bat dau: " + ot.getNgayBatDau());
 						System.out.println("ngay bat dau: " + ot.getNgayKetThuc());
-						
+
 						if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) <= 3) {
 							System.out.println("so ngay < 3");
 							// lấy ra manager 1 của staff
@@ -580,13 +584,14 @@ public class NghiPhepController {
 								return new ResponseEntity<>(resp, HttpStatus.OK);
 							}
 
-						}
-						else if(ot.getTrangThai() != 0) {
-							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+						} else if (ot.getTrangThai() != 0) {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+									"Invalid reviwer id or of list_id request not valid", null);
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
 
-						else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3 && ot.getTrangThai() == 0) {
+						else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3
+								&& ot.getTrangThai() == 0) {
 
 							System.out.println("so ngay > 3");
 							// lấy ra manager 2 của staff
@@ -603,26 +608,28 @@ public class NghiPhepController {
 
 							System.out.println("mã pm update ne: " + manager2.getMaPM());
 							System.out.println("ma pm input: " + approve.getId_lead());
-							System.out.println("so sanh ma pm voi in mapm: " + manager2.getMaPM().equals(approve.getId_lead()));
-							
+							System.out.println(
+									"so sanh ma pm voi in mapm: " + manager2.getMaPM().equals(approve.getId_lead()));
+
 							if (manager2.getMaPM() != null && manager2.getMaPM().equals(approve.getId_lead())) {
 								ot.setLyDoTuChoi(approve.getReason());
 								System.out.println("cac 1");
 								// goi service user de lay infor nhanvien
-								final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"+ manager.getMaNV();
+								final String uri4 = "https://userteam07.herokuapp.com/api/staff_nghiphep/"
+										+ manager.getMaNV();
 								RestTemplate restTemplate4 = new RestTemplate();
 								User result_staff = restTemplate4.getForObject(uri4, User.class);
-								
+
 								System.out.println("cac 2");
 								System.out.println(result_staff.getID());
-								
+
 								ot.setTrangThai(1);
 								ot.setLyDoTuChoi("");
 								ot.setMaNguoiDuyet(approve.getId_lead());
 
 								result_staff.setSoPhepConLai(result_staff.getSoPhepConLai() - 1); // cập nhật lại số
 																									// ngày
-								System.out.println("cac 3");																// nghỉ
+								System.out.println("cac 3"); // nghỉ
 								// phép còn lại
 								ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", repoNP.save(ot));
 								System.out.println("mã nhân viên cần update: " + manager);
@@ -641,37 +648,36 @@ public class NghiPhepController {
 								repoNP.save(ot);
 								System.out.println("cac 5");
 
-							}
-							else {
+							} else {
 								ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
 										"Id reviewer or order id not valid", null);
 								return new ResponseEntity<>(resp, HttpStatus.OK);
 							}
 
-						} 
-						else {
-							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+						} else {
+							ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+									"Invalid reviwer id or of list_id request not valid", null);
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
-					}
-					else {
-						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+					} else {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+								"Invalid reviwer id or of list_id request not valid", null);
 						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 
 				}
 			}
 			// TU CHOI DUYET DON
-			
+
 			else if (approve.getAction().toUpperCase().equals("REJECT")) { // check xem loai action la reject hay accept
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng nghỉ phép lấy ra
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
 				System.out.println("tao vao trong reject roi nay");
 				for (String request_id : approve.getList_id_request()) {
 					// Find request
-				
+
 					Query q = new Query();
-			
+
 					q.addCriteria(Criteria.where("ID").is(request_id));
 					NghiPhep ot = mongoTemplate.findOne(q, NghiPhep.class);
 					// Validate manager authority
@@ -709,13 +715,14 @@ public class NghiPhepController {
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
 
-					}
-					else if(ot.getTrangThai() != 0) {
-						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+					} else if (ot.getTrangThai() != 0) {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+								"Invalid reviwer id or of list_id request not valid", null);
 						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 
-					else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3 && ot.getTrangThai() == 0) {
+					else if (Caculatebetweentwoday(ot.getNgayBatDau(), ot.getNgayKetThuc()) > 3
+							&& ot.getTrangThai() == 0) {
 
 						System.out.println("so ngay > 3");
 						// lấy ra manager 2 của staff
@@ -752,9 +759,9 @@ public class NghiPhepController {
 									"Id reviewer or order id not valid", null);
 							return new ResponseEntity<>(resp, HttpStatus.OK);
 						}
-					}
-					else {
-						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+					} else {
+						ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+								"Invalid reviwer id or of list_id request not valid", null);
 						return new ResponseEntity<>(resp, HttpStatus.OK);
 					}
 
@@ -765,7 +772,8 @@ public class NghiPhepController {
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 
 		} catch (Exception e) {
-			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "Invalid reviwer id or of list_id request not valid", null);
+			ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1,
+					"Invalid reviwer id or of list_id request not valid", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 

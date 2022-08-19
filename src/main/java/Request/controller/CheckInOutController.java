@@ -156,9 +156,9 @@ public class CheckInOutController {
 						&& i.getGioBatDau().getDayOfMonth() == currentdate.getDayOfMonth()
 						&& i.getGioBatDau().getMonthValue() == currentdate.getMonthValue()
 						&& i.getGioBatDau().getYear() == currentdate.getYear()) {
-					i.setGioKetThuc(LocalDateTime.now().plusHours(7));
+//					i.setGioKetThuc(LocalDateTime.now().plusHours(7));
 					repoCheckIn.save(i);
-					i.setGioKetThuc(i.getGioKetThuc().minusHours(7));
+//					i.setGioKetThuc(i.getGioKetThuc().minusHours(7));
 					ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", i);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
@@ -193,7 +193,7 @@ public class CheckInOutController {
 			//test
 			String ID = UUID.randomUUID().toString();
 			Check_in_out _check_in = repoCheckIn.save(new Check_in_out(ID, MaNV_input));
-			_check_in.setGioBatDau(_check_in.getGioBatDau().minusHours(7));
+//			_check_in.setGioBatDau(_check_in.getGioBatDau().minusHours(7));
 			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", _check_in);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
