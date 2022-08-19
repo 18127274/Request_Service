@@ -1,5 +1,6 @@
 package Request.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -269,6 +270,11 @@ public class OTController {
 			wfhlst = mongoTemplate.find(q, OT.class);
 			
 			if(wfhlst.isEmpty()) {
+				if((ot.getNgayOT().isBefore(LocalDate.now()) && ot.getNgayOT().getMonth() != LocalDate.now().getMonth()) 
+						|| (ot.getNgayOT().isAfter(LocalDate.now()) && ot.getNgayOT().getYear() != LocalDate.now().getYear())) {
+					ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Invalid date", null);
+					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+				}
 				ot.setID(UUID.randomUUID().toString());
 				OT _ot = repoOT.save(new OT(ot.getID(), ot.getMaNhanVien(), ot.getNgayOT(), ot.getSoGio(), ot.getLyDoOT()));
 
@@ -285,7 +291,7 @@ public class OTController {
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			
 		} catch (Exception e) {
-			ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Internal error", null);
+			ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Miss input", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}

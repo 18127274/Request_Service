@@ -206,7 +206,7 @@ public class WFHController {
 				}
 			}
 			
-			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Can't request because you have petition", null);
+			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "You was have petition or input date wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 
