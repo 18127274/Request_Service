@@ -459,39 +459,48 @@ public class NghiPhepController {
 	@PostMapping("/request_nghiphep")
 	public ResponseEntity<ApiResponse<NghiPhep>> Request_nghiphep(@RequestBody NghiPhep np) {
 		try {
+			
+			LocalDate localDate = LocalDate.now();
+			System.out.println(localDate);
+			
+			System.out.println("ss nbd: " + np.getNgayBatDau().compareTo(localDate));
+			System.out.println("ss nkt: " + np.getNgayKetThuc().compareTo(localDate));
 			LocalTime localTime = LocalTime.now();
+			
+			if(np.getNgayBatDau().compareTo(localDate) >= 0 && np.getNgayKetThuc().compareTo(localDate) >=0 ) {
+				System.out.println(localTime);
+				List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
+				Query q = new Query();
+				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
+				q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
+						.addCriteria(Criteria.where("TrangThai").is(0));
+				wfhlst = mongoTemplate.find(q, NghiPhep.class);
+				System.out.println("rong hay k tren: " + wfhlst.isEmpty());
 
-			System.out.println(localTime);
-			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
-			Query q = new Query();
-			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
-			q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is(0));
-			wfhlst = mongoTemplate.find(q, NghiPhep.class);
-			System.out.println("rong hay k tren: " + wfhlst.isEmpty());
+				// goi service user de lay infor nhanvien
+				final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				User result = restTemplate.getForObject(uri, User.class);
 
-			// goi service user de lay infor nhanvien
-			final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
-			RestTemplate restTemplate = new RestTemplate();
-			User result = restTemplate.getForObject(uri, User.class);
+				System.out.println("uri: " + uri);
+				System.out.println("result: " + result);
+				System.out.println("rong hay k: " + wfhlst.isEmpty());
+				System.out.println("so phep con lai: " + result.getSoPhepConLai());
 
-			System.out.println("uri: " + uri);
-			System.out.println("result: " + result);
-			System.out.println("rong hay k: " + wfhlst.isEmpty());
-			System.out.println("so phep con lai: " + result.getSoPhepConLai());
-
-			System.out.println(result.getID());
-			System.out.println(wfhlst.isEmpty());
-			if (wfhlst.isEmpty() == true && result.getSoPhepConLai() >= 1) {// can them dieu kien la so php con lai phai
-																			// >=1
-				System.out.println("khong co thang nhan vien nay");
-				np.setID(UUID.randomUUID().toString());
-				NghiPhep _np = repoNP.save(new NghiPhep(np.getID(), "", np.getMaNhanVien(), np.getLoaiNghiPhep(),
-						np.getNgayBatDau(), np.getNgayKetThuc(), np.getLyDo(), "", 0));
-				ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+				System.out.println(result.getID());
+				System.out.println(wfhlst.isEmpty());
+				if (wfhlst.isEmpty() == true && result.getSoPhepConLai() >= 1)  {// can them dieu kien la so php con lai phai
+																				// >=1
+					System.out.println("khong co thang nhan vien nay");
+					np.setID(UUID.randomUUID().toString());
+					NghiPhep _np = repoNP.save(new NghiPhep(np.getID(), "", np.getMaNhanVien(), np.getLoaiNghiPhep(),
+							np.getNgayBatDau(), np.getNgayKetThuc(), np.getLyDo(), "", 0));
+					ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
+					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+				}
 			}
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Can't request because you have petition", null);
+			
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or input date wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

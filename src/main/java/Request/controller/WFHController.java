@@ -61,7 +61,7 @@ public class WFHController {
 	@GetMapping("/get_all_list_request_wfh")
 	public ResponseEntity<ApiResponse<List<WFH>>> View_all_list_request_wfh() {
 		try {
-			
+
 			List<WFH> wfhlst = new ArrayList<WFH>();
 
 			repoWFH.findAll().forEach(wfhlst::add);
@@ -69,7 +69,7 @@ public class WFHController {
 			if (wfhlst.isEmpty()) {
 				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Request is empty!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
-				
+
 			}
 
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
@@ -78,9 +78,7 @@ public class WFHController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-	
-	
+
 	// lấy ra tat ca đơn yêu cầu wfh thông qua mã nhân viên.
 	@GetMapping("/get_all_list_wfh_by_staff_id/{MaNV_input}")
 	public ResponseEntity<ApiResponse<List<WFH>>> Get_all_list_wfh_by_staff_id(
@@ -91,7 +89,7 @@ public class WFHController {
 			Query q = new Query();
 			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 			wfhlst = mongoTemplate.find(q, WFH.class);
-			
+
 			System.out.println(MaNV_input);
 			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty()) {
@@ -104,7 +102,7 @@ public class WFHController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	// lấy ra đơn yêu cầu wfh thông qua mã đơn.
 	@GetMapping("/get_wfh_id/{MaWFH_input}")
 	public ResponseEntity<ApiResponse<List<WFH>>> Get_wfh_id(@PathVariable(value = "MaWFH_input") String MaWFH_input) {
@@ -115,7 +113,8 @@ public class WFHController {
 			q.addCriteria(Criteria.where("ID").is(MaWFH_input));
 			wfhlst = mongoTemplate.find(q, WFH.class);
 			if (wfhlst.isEmpty()) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Id wfh wrong or this order_wfh is not available!", null);
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1,
+						"Id wfh wrong or this order_wfh is not available!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
@@ -136,7 +135,8 @@ public class WFHController {
 			q.addCriteria(Criteria.where("MaNhanVien").is(MaNV_input));
 			wfhlst = mongoTemplate.find(q, WFH.class);
 			if (wfhlst.isEmpty()) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Id staff wrong or this order_wfh is not available!", null);
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1,
+						"Id staff wrong or this order_wfh is not available!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
@@ -156,11 +156,12 @@ public class WFHController {
 			Query q = new Query();
 			q.addCriteria(Criteria.where("TrangThai").is(status));
 			wfhlst = mongoTemplate.find(q, WFH.class);
-			
+
 			System.out.println(status);
 			System.out.println(wfhlst.isEmpty());
 			if (wfhlst.isEmpty()) {
-				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1, "Status format wrong or order wfh does not exist!", null);
+				ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(1,
+						"Status format wrong or order wfh does not exist!", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
@@ -177,29 +178,34 @@ public class WFHController {
 	public ResponseEntity<ApiResponse<WFH>> Request_wfh(@RequestBody WFH wfh) {
 		try {
 			// check xem nhân viên này có đơn nào đang chưa được duyệt hay không?
+			
 			LocalDate localDate = LocalDate.now();
 			System.out.println(localDate);
+			
+			System.out.println("ss nbd: " + wfh.getNgayBatDau().compareTo(localDate));
+			System.out.println("ss nkt: " + wfh.getNgayKetThuc().compareTo(localDate));
 			LocalTime localTime = LocalTime.now();
 			
-			System.out.println(localTime);
-			
-			List<WFH> wfhlst = new ArrayList<WFH>();
-			Query q = new Query();
-			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
-			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
-					.addCriteria(Criteria.where("TrangThai").is(0));
-			wfhlst = mongoTemplate.find(q, WFH.class);
-			
-			System.out.println(wfh.getMaNhanVien());
-			System.out.println(wfhlst.isEmpty());
-			if (wfhlst.isEmpty() == true) {
-				System.out.println("khong co thang nhan vien nay");
-				wfh.setID(UUID.randomUUID().toString());
-				WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau(),
-						wfh.getNgayKetThuc(), wfh.getLyDo(), "", 0));
-				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
-				return new ResponseEntity<>(resp, HttpStatus.CREATED);
+			if(wfh.getNgayBatDau().compareTo(localDate) >= 0 && wfh.getNgayKetThuc().compareTo(localDate) >=0 ) {
+				List<WFH> wfhlst = new ArrayList<WFH>();
+				Query q = new Query();
+				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
+				q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
+						.addCriteria(Criteria.where("TrangThai").is(0));
+				wfhlst = mongoTemplate.find(q, WFH.class);
+
+				System.out.println(wfh.getMaNhanVien());
+				System.out.println(wfhlst.isEmpty());
+				if (wfhlst.isEmpty() == true) {
+					System.out.println("khong co thang nhan vien nay");
+					wfh.setID(UUID.randomUUID().toString());
+					WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau(),
+							wfh.getNgayKetThuc(), wfh.getLyDo(), "", 0));
+					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
+					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+				}
 			}
+			
 			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
@@ -209,21 +215,20 @@ public class WFHController {
 		}
 	}
 
-	
 	@GetMapping("/get_all_list_wfh_of_manager1")
-	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Get_all_list_wfh_of_manager1(@RequestParam("id_lead") String id_lead_input,
-			@RequestParam("status") int status_input) {
+	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Get_all_list_wfh_of_manager1(
+			@RequestParam("id_lead") String id_lead_input, @RequestParam("status") int status_input) {
 		try {
 			String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + id_lead_input;
 			RestTemplate restTemplate = new RestTemplate();
 			List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
 			List<String> staff = call.getListstaff();
-			
-			if (status_input<0 || status_input>2) {
+
+			if (status_input < 0 || status_input > 2) {
 				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<List<WFH_Reponse>>(0, "invalid status", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
-			
+
 			List<WFH> otlst = new ArrayList<WFH>();
 			Query q = new Query();
 			q.addCriteria(Criteria.where("TrangThai").is(status_input));
@@ -232,16 +237,16 @@ public class WFHController {
 				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(0, "Empty data", null);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
-			
+
 			List<WFH> result = new ArrayList<WFH>();
 			for (WFH i : otlst) {
 				for (String y : staff) {
-					if(i.getMaNhanVien().equals(y)) {
+					if (i.getMaNhanVien().equals(y)) {
 						result.add(i);
 					}
 				}
 			}
-			
+
 			List<WFH_Reponse> resp = new ArrayList<WFH_Reponse>();
 			for (WFH i : result) {
 				String uri1 = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
@@ -253,15 +258,15 @@ public class WFHController {
 				resp.add(temp);
 				System.out.println(resp.isEmpty());
 			}
-			
+
 			ApiResponse<List<WFH_Reponse>> resp1 = new ApiResponse<>(0, "Success", resp);
 			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<WFH_Reponse>>  resp = new ApiResponse<>(1, "ID lead not exist", null);
+			ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "ID lead not exist", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
-	
+
 	// manager cấp 1/ manager cấp 2 chấp thuận đơn yêu cầu.
 //	@PutMapping("/approve_request_wfh")
 //	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestParam(value = "id", required = false) String id,
@@ -295,48 +300,49 @@ public class WFHController {
 //			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 //		}
 //	}
-	
+
 	@PutMapping("/approve_request_wfh")
-	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Approve_request_wfh(@RequestBody approve_ot approve){
+	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Approve_request_wfh(@RequestBody approve_ot approve) {
 		try {
 			List<WFH> result = new ArrayList<WFH>();
-			if(!approve.getAction().toUpperCase().equals("ACCEPT") && !(approve.getAction().toUpperCase().equals("REJECT"))) {
+			if (!approve.getAction().toUpperCase().equals("ACCEPT")
+					&& !(approve.getAction().toUpperCase().equals("REJECT"))) {
 				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "Action only accept or reject", null);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
-			if(approve.getAction().toUpperCase().equals("REJECT") && (approve.getReason()==null || approve.getReason().equals(""))) {
+			if (approve.getAction().toUpperCase().equals("REJECT")
+					&& (approve.getReason() == null || approve.getReason().equals(""))) {
 				ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "Invalid reason", null);
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
 			System.out.println("list id: " + approve.getList_id_request());
 			System.out.println("list id: " + approve.getAction());
-		
+
 			for (String request_id : approve.getList_id_request()) {
-				//Find request 
+				// Find request
 				Query q = new Query();
 				q.addCriteria(Criteria.where("ID").is(request_id));
 				WFH ot = mongoTemplate.findOne(q, WFH.class);
-				//Validate manager authority
+				// Validate manager authority
 				String uri = "https://gatewayteam07.herokuapp.com/api/get_manager1_of_staff/" + ot.getMaNhanVien();
 				RestTemplate restTemplate = new RestTemplate();
 				ThamGiaDuAn manager = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-				
-				if(manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
+
+				if (manager.getID() != null && manager.getMaTL().equals(approve.getId_lead())) {
 					ot.setLyDoTuChoi(approve.getReason());
 					if (approve.getAction().toUpperCase().equals("ACCEPT")) {
 						ot.setTrangThai(1);
 						ot.setLyDoTuChoi("");
-					}
-					else {
+					} else {
 						ot.setTrangThai(2);
 					}
 					ot.setMaNguoiDuyet(approve.getId_lead());
 					repoWFH.save(ot);
-					result.add(ot);					
-				}
-				else {
-					ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "invalid input or Leader don't have permission", null);
-					return new ResponseEntity<>(resp, HttpStatus.OK);					
+					result.add(ot);
+				} else {
+					ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1,
+							"invalid input or Leader don't have permission", null);
+					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 			}
 			List<WFH_Reponse> resp = new ArrayList<WFH_Reponse>();
@@ -344,11 +350,11 @@ public class WFHController {
 				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + i.getMaNhanVien();
 				RestTemplate restTemplate = new RestTemplate();
 				User staff = restTemplate.getForObject(uri, User.class);
-				WFH_Reponse temp = new WFH_Reponse(i,staff);
+				WFH_Reponse temp = new WFH_Reponse(i, staff);
 				resp.add(temp);
 				System.out.println("qua dc add");
 			}
-			
+
 			ApiResponse<List<WFH_Reponse>> resp1 = new ApiResponse<>(0, "Success", resp);
 			return new ResponseEntity<>(resp1, HttpStatus.OK);
 //			ApiResponse<List<OT>> resp = new ApiResponse<>(0, "Success", result);
