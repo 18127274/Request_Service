@@ -186,7 +186,10 @@ public class WFHController {
 			System.out.println("ss nkt: " + wfh.getNgayKetThuc().compareTo(localDate));
 			LocalTime localTime = LocalTime.now();
 			
-			if(wfh.getNgayBatDau().compareTo(localDate) >= 0 && wfh.getNgayKetThuc().compareTo(localDate) >=0 ) {
+			if(wfh.getNgayBatDau().getYear() >= LocalDate.now().getYear() && wfh.getNgayKetThuc().getYear() >= LocalDate.now().getYear() //check nam 
+					   && wfh.getNgayBatDau().getMonthValue() ==  LocalDate.now().getMonthValue() && wfh.getNgayKetThuc().getMonthValue() >=  LocalDate.now().getMonthValue() //check thang
+					    //check ngay bat dau thi phai nam trong thang va ngay ket thuc lon hon ngay bat dau
+					   && wfh.getNgayKetThuc().getDayOfMonth() > wfh.getNgayBatDau().getDayOfMonth()) {
 				List<WFH> wfhlst = new ArrayList<WFH>();
 				Query q = new Query();
 				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));

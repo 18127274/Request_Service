@@ -52,6 +52,7 @@ import java.time.format.FormatStyle;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.time.Period;
+import java.time.YearMonth;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -454,21 +455,44 @@ public class NghiPhepController {
 		long daysDiff = Math.abs(period.getDays());
 		return daysDiff;
 	}
-
+	
+	public static int getNumberOfDaysInMonth(int year,int month)
+    {
+        YearMonth yearMonthObject = YearMonth.of(year, month);
+        int daysInMonth = yearMonthObject.lengthOfMonth();
+        return daysInMonth;
+    }
+	
 	// nhân viên yêu cầu nghỉ phép
 	@PostMapping("/request_nghiphep")
 	public ResponseEntity<ApiResponse<NghiPhep>> Request_nghiphep(@RequestBody NghiPhep np) {
 		try {
 			
 			LocalDate localDate = LocalDate.now();
-			System.out.println(localDate);
+//			System.out.println(localDate);
+//			
+//			System.out.println("ss nbd: " + np.getNgayBatDau().compareTo(localDate));
+//			System.out.println("ss nkt: " + np.getNgayKetThuc().compareTo(localDate));
+//			LocalTime localTime = LocalTime.now();
+//			
+//			(ot.getNgayOT().isBefore(LocalDate.now()) && ot.getNgayOT().getMonth() != LocalDate.now().getMonth()) 
+//			|| (ot.getNgayOT().isAfter(LocalDate.now()) && ot.getNgayOT().getYear() != LocalDate.now().getYear())
 			
-			System.out.println("ss nbd: " + np.getNgayBatDau().compareTo(localDate));
-			System.out.println("ss nkt: " + np.getNgayKetThuc().compareTo(localDate));
-			LocalTime localTime = LocalTime.now();
+			//&& np.getNgayBatDau().getMonth() >= LocalDate.now().getMonth() 
 			
-			if(np.getNgayBatDau().compareTo(localDate) >= 0 && np.getNgayKetThuc().compareTo(localDate) >=0 ) {
-				System.out.println(localTime);
+			System.out.println("month: " + np.getNgayBatDau().getMonth());
+			System.out.println("month: " + LocalDate.now().getMonth());
+			
+			System.out.println("ngay cua thang : " + np.getNgayBatDau().getDayOfMonth());
+			System.out.println("so ngay cua thang : " + getNumberOfDaysInMonth(np.getNgayBatDau().getYear(), np.getNgayBatDau().getMonthValue()));
+			
+			
+			
+			if(np.getNgayBatDau().getYear() >= LocalDate.now().getYear() && np.getNgayKetThuc().getYear() >= LocalDate.now().getYear() //check nam 
+			   && np.getNgayBatDau().getMonthValue() ==  LocalDate.now().getMonthValue() && np.getNgayKetThuc().getMonthValue() >=  LocalDate.now().getMonthValue() //check thang
+			    //check ngay bat dau thi phai nam trong thang va ngay ket thuc lon hon ngay bat dau
+			   && np.getNgayKetThuc().getDayOfMonth() > np.getNgayBatDau().getDayOfMonth()) {
+		
 				List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
 				Query q = new Query();
 				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
