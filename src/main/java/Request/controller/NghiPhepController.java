@@ -168,8 +168,8 @@ public class NghiPhepController {
 
 				ApiResponse<List<NghiPhep_Response>> resp1 = new ApiResponse<>(0, "Success", resp);
 				return new ResponseEntity<>(resp1, HttpStatus.OK);
-			} else if (role == 5) {
-				// gọi api lấy ra director của 1 thằng team leader
+			} else if (role == 2) {
+				// gọi api lấy ra director của 1 thằng team leader.
 
 				String uri1 = "https://duanteam07.herokuapp.com/api/get_teamleader_manage_project_has_status_0/"
 						+ id_reviewer;
