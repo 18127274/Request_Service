@@ -84,7 +84,8 @@ public class NhanvienController {
 			ApiResponse<List<NhanVien>> resp = new ApiResponse<List<NhanVien>>(0, "Success", nhanvienlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NhanVien>> resp = new ApiResponse<List<NhanVien>>(1, "Failure!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 

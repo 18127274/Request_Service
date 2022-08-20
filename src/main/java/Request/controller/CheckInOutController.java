@@ -71,7 +71,8 @@ public class CheckInOutController {
 			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(0, "Success", checklist);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(1, "Empty data!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -110,7 +111,8 @@ public class CheckInOutController {
 			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(0, "Success", result);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(1, "Empty data!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -132,7 +134,8 @@ public class CheckInOutController {
 			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(0, "Success", checklst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(1, "Empty data!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -166,7 +169,8 @@ public class CheckInOutController {
 			ApiResponse<Check_in_out> resp = new ApiResponse<>(1, "Not checkin yet", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(1, "Empty data!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -197,7 +201,8 @@ public class CheckInOutController {
 			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", _check_in);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(1, "Empty data!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 

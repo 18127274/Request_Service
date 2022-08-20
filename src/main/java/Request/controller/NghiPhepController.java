@@ -85,7 +85,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Failure", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -109,7 +110,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Failure", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -181,21 +183,21 @@ public class NghiPhepController {
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + array[0].getMaTL();
 				System.out.println(uri);
 				RestTemplate restTemplate = new RestTemplate();
-				System.out.println("cac1");
+			
 				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
 				List<String> staff = call.getListstaff();
 
-				System.out.println("cac3");
+			
 				if (status_input < 0 || status_input > 2) {
 					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
-				System.out.println("cac4");
+			
 				List<NghiPhep> otlst = new ArrayList<NghiPhep>();
 				Query q = new Query();
 				q.addCriteria(Criteria.where("TrangThai").is(status_input));
 				otlst = mongoTemplate.find(q, NghiPhep.class);
-				System.out.println("cac5");
+			
 
 				if (otlst.isEmpty()) {
 					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
@@ -375,7 +377,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Status fomart wrong!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -398,7 +401,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Id of this leave does not exist!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -423,7 +427,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Failure!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -445,7 +450,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Failure!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -527,7 +533,8 @@ public class NghiPhepController {
 			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or input date wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Failure!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 
@@ -838,7 +845,8 @@ public class NghiPhepController {
 			ApiResponse<NghiPhepResponse> resp = new ApiResponse<NghiPhepResponse>(0, "no content", null);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<NghiPhepResponse> resp = new ApiResponse<NghiPhepResponse>(1, "Failure!", null);
+			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
 }

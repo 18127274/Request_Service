@@ -99,7 +99,8 @@ public class OTController {
 			ApiResponse<List<OT>> resp = new ApiResponse<List<OT>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<OT>> resp1 = new ApiResponse<>(1, "Failure!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 

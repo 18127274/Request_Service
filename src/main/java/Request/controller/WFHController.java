@@ -75,7 +75,8 @@ public class WFHController {
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<WFH>> resp1 = new ApiResponse<>(1, "Failure!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -99,7 +100,8 @@ public class WFHController {
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<WFH>> resp1 = new ApiResponse<>(1, "Request is empty or id staff wrong!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -120,7 +122,8 @@ public class WFHController {
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<WFH>> resp1 = new ApiResponse<>(1, "Failure!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -142,7 +145,8 @@ public class WFHController {
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<WFH>> resp1 = new ApiResponse<>(1, "Request is empty or id staff wrong!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -167,7 +171,8 @@ public class WFHController {
 			ApiResponse<List<WFH>> resp = new ApiResponse<List<WFH>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<List<WFH>> resp1 = new ApiResponse<>(1, "Request is empty or id status wrong!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -214,7 +219,8 @@ public class WFHController {
 		}
 
 		catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			ApiResponse<WFH> resp1 = new ApiResponse<>(1, "You was have petition or input date wrong!", null);
+			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
 
@@ -270,39 +276,6 @@ public class WFHController {
 		}
 	}
 
-	// manager cấp 1/ manager cấp 2 chấp thuận đơn yêu cầu.
-//	@PutMapping("/approve_request_wfh")
-//	public ResponseEntity<ApiResponse<WFH>> Approve_request_wfh(@RequestParam(value = "id", required = false) String id,
-//			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet) {
-//
-//		try {
-//			Query q = new Query();
-//			q.addCriteria(Criteria.where("ID").is(id));
-//			WFH wfh = mongoTemplate.findOne(q, WFH.class);
-//			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-//			// này hay không?
-//			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
-//			System.out.println("api: " + uri);
-//			RestTemplate restTemplate = new RestTemplate();
-//			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-//			System.out.println(result);
-//			System.out.println(result.getMaTL());
-//			System.out.println(manguoiduyet);
-//
-//			if (result != null && result.getMaTL().equals(manguoiduyet)) {
-//				wfh.setTrangThai(1);
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			} else {
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Order_id wrong or manager level 1 id wrong", null);
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//		} catch (Exception e) {
-//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
 
 	@PutMapping("/approve_request_wfh")
 	public ResponseEntity<ApiResponse<List<WFH_Reponse>>> Approve_request_wfh(@RequestBody approve_ot approve) {
@@ -360,43 +333,12 @@ public class WFHController {
 
 			ApiResponse<List<WFH_Reponse>> resp1 = new ApiResponse<>(0, "Success", resp);
 			return new ResponseEntity<>(resp1, HttpStatus.OK);
-//			ApiResponse<List<OT>> resp = new ApiResponse<>(0, "Success", result);
-//			return new ResponseEntity<>(resp, HttpStatus.OK);
+
 		} catch (Exception e) {
 			ApiResponse<List<WFH_Reponse>> resp = new ApiResponse<>(1, "Invalid OT id", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
-	// team leader từ chối đơn yêu cầu .
-//	@PutMapping("/reject_request_wfh")
-//	public ResponseEntity<ApiResponse<WFH>> Reject_request_wfh(@RequestParam(value = "id", required = false) String id,
-//			@RequestParam(value = "manguoiduyet", required = false) String manguoiduyet,
-//			@RequestParam(value = "lydotuchoi", required = false) String lydotuchoi) {
-//		try {
-//			Query q = new Query();
-//			q.addCriteria(Criteria.where("ID").is(id));
-//			WFH wfh = mongoTemplate.findOne(q, WFH.class);
-//			// kiểm tra xem mã người duyệt đơn này có phải là manager cấp 1 của nhân viên
-//			// này hay không?
-//			final String uri = "https://duanteam07.herokuapp.com/api/get_manager1_of_staff/" + wfh.getMaNhanVien();
-//			System.out.println("api: " + uri);
-//			RestTemplate restTemplate = new RestTemplate();
-//			ThamGiaDuAn result = restTemplate.getForObject(uri, ThamGiaDuAn.class);
-//			if (result != null && result.getMaTL().equals(manguoiduyet)) {
-//				wfh.setTrangThai(2);
-//				wfh.setMaNguoiDuyet(manguoiduyet);
-//				wfh.setLyDoTuChoi(lydotuchoi);
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", repoWFH.save(wfh));
-//				// ApiResponse<OT> resp = new ApiResponse<OT>(0,"Success",repoOT.save(ot));
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			} else {
-//				ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "Order_id wrong or manager level 1 id wrong", null);
-//				return new ResponseEntity<>(resp, HttpStatus.CREATED);
-//			}
-//
-//		} catch (Exception e) {
-//			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
+
 }
