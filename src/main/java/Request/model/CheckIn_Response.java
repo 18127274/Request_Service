@@ -1,5 +1,6 @@
 package Request.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CheckIn_Response {
@@ -57,10 +58,19 @@ public class CheckIn_Response {
 		YearTime = yearTime;
 		MonthIdeal = 200;
 	}
-
+	
 	public CheckIn_Response() {
 		super();
-		// TODO Auto-generated constructor stub
+		MonthList = new ArrayList<Check_in_out>();
+		MonthTime = (long) 0;
+		Status = 1;
+		YearTime = (long) 0;
+		MonthIdeal = 200;
 	}
+//
+//	public CheckIn_Response() {
+//		super();
+//		// TODO Auto-generated constructor stub
+//	}
 
 }

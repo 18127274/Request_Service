@@ -86,7 +86,7 @@ public class CheckInOutController {
 			repoCheckIn.findAll(Sort.by(Sort.Direction.DESC, "GioBatDau")).forEach(checklst::add);
 			if (checklst.isEmpty()) {
 				CheckIn_Response temp = new CheckIn_Response();
-				ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(1, "No content", temp);
+				ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(0, "No content", temp);
 				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			long monthhour = 0;
@@ -109,7 +109,7 @@ public class CheckInOutController {
 //			Collections.sort(monthlist, Collections.reverseOrder());
 			CheckIn_Response result = new CheckIn_Response(monthlist, monthhour, yearhour);
 			if (result.getMonthTime() >= 200) {
-				result.setStatus(1);
+				result.setStatus(0);
 			}
 			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(0, "Success", result);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
