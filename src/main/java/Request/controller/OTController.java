@@ -276,14 +276,21 @@ public class OTController {
 					ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Invalid date", null);
 					return new ResponseEntity<>(resp, HttpStatus.CREATED);
 				}
+				User staff = new User();
+				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + ot.getMaNhanVien();
+				RestTemplate restTemplate = new RestTemplate();
+				staff = restTemplate.getForObject(uri, User.class);
+				
+//				OT_Response resp = new OT_Response(_ot, staff);
+				if (staff.getID()==null || staff.getID().equals("")) {
+					ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Staff id not exist", null);
+					return new ResponseEntity<>(resp, HttpStatus.CREATED);
+				}
+				
 				ot.setID(UUID.randomUUID().toString());
 				OT _ot = repoOT.save(new OT(ot.getID(), ot.getMaNhanVien(), ot.getNgayOT(), ot.getSoGio(), ot.getLyDoOT()));
-
-				String uri = "https://gatewayteam07.herokuapp.com/api/staff_nghiphep/" + _ot.getMaNhanVien();
-				RestTemplate restTemplate = new RestTemplate();
-				User staff = restTemplate.getForObject(uri, User.class);
 				OT_Response resp = new OT_Response(_ot, staff);
-
+				
 				ApiResponse<OT_Response> resp1 = new ApiResponse<>(0, "Success", resp);
 				return new ResponseEntity<>(resp1, HttpStatus.CREATED);
 			}
@@ -292,7 +299,7 @@ public class OTController {
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			
 		} catch (Exception e) {
-			ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Miss input", null);
+			ApiResponse<OT_Response> resp = new ApiResponse<>(1, "Miss input or staff id not exist", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}

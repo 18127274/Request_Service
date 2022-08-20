@@ -103,7 +103,8 @@ public class YeuCauThietBiController {
 			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "Request is empty or id staff wrong!", null);
+			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1,
+					"Request is empty or id staff wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -300,7 +301,6 @@ public class YeuCauThietBiController {
 		}
 	}
 
-
 	// lấy ra đơn yêu cầu wfh theo trangthai (trangthai = 0: chờ xét duyệt, 1: đã
 	// xét duyệt, 2: từ chối).
 	@GetMapping("/get_yctb_by_status/{status}")
@@ -320,7 +320,8 @@ public class YeuCauThietBiController {
 			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1, "Request is empty or status wrong!", null);
+			ApiResponse<List<YeuCauThietBi>> resp = new ApiResponse<List<YeuCauThietBi>>(1,
+					"Request is empty or status wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -331,23 +332,25 @@ public class YeuCauThietBiController {
 	@PostMapping("/request_yctb")
 	public ResponseEntity<ApiResponse<YeuCauThietBi>> Request_yctb(@RequestBody YeuCauThietBi wfh) {
 		try {
+
+			// check Nhân viên tồn tại hay k?
+			// goi service user de lay infor nhanvien
+			final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + wfh.getMaNhanVien();
+			RestTemplate restTemplate = new RestTemplate();
+			User result = restTemplate.getForObject(uri, User.class);
+
 			// check xem nhân viên này có đơn nào đang chưa được duyệt hay không?
 			List<YeuCauThietBi> wfhlst = new ArrayList<YeuCauThietBi>();
 			Query q = new Query();
-			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 
-			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien())).addCriteria(Criteria.where("TrangThai").is("IT
-			// Department is reviewing"));
 			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
 					.addCriteria(Criteria.where("").orOperator(Criteria.where("TrangThai").is(1),
 							Criteria.where("TrangThai").is(4), Criteria.where("TrangThai").is(5),
 							Criteria.where("TrangThai").is(3)));
-			// criteria.orOperator(Criteria.where("A").is(10),Criteria.where("B").is(20));
 			wfhlst = mongoTemplate.find(q, YeuCauThietBi.class);
 
-			System.out.println(wfh.getMaNhanVien());
-			System.out.println(wfhlst.isEmpty());
-			if (wfhlst.isEmpty() == true) {
+
+			if (wfhlst.isEmpty() == true && result.getID() != "") {
 				System.out.println("khong co thang nhan vien nay");
 				wfh.setID(UUID.randomUUID().toString());
 				YeuCauThietBi _wfh = repoYCTB.save(new YeuCauThietBi(wfh.getID(), wfh.getMaNhanVien(), wfh.getMoTa(),
@@ -361,7 +364,8 @@ public class YeuCauThietBiController {
 		}
 
 		catch (Exception e) {
-			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1, "Can't request because you have petition", null);
+			ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(1,
+					"Can't request because you have petition", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -385,31 +389,27 @@ public class YeuCauThietBiController {
 				return new ResponseEntity<>(resp, HttpStatus.CREATED);
 			}
 
-			
-
-			
 			// check mang list
 			List<YeuCauThietBi> result4 = new ArrayList<YeuCauThietBi>();
 			repoYCTB.findAll().forEach(result4::add);
-			
+
 			System.out.println("size yctb: " + result4.size());
 			for (String request_id : approve.getList_id_request()) {
 				Query q = new Query();
 				q.addCriteria(Criteria.where("ID").is(request_id));
 				YeuCauThietBi ot = mongoTemplate.findOne(q, YeuCauThietBi.class);
-				if(ot.getID() == "") {
-					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1,"Invalid reviewer id or of list_id request not valid", null);
+				if (ot.getID() == "") {
+					ApiResponse<List<YeuCauThietBi_Response>> resp = new ApiResponse<>(1,
+							"Invalid reviewer id or of list_id request not valid", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
 			}
-			
-			
+
 			// CHẤP THUẬN DUYỆT ĐƠN
 			if (approve.getAction().toUpperCase().equals("ACCEPT")) { // check xem loai action la reject hay accept
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng yêu cầu thiết bị
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
-				
-				
+
 				System.out.println("do dai list: " + approve.getList_id_request().size());
 				for (String request_id : approve.getList_id_request()) {
 
@@ -425,8 +425,7 @@ public class YeuCauThietBiController {
 
 					RestTemplate restTemplate1 = new RestTemplate();
 					User result1 = restTemplate1.getForObject(uri1, User.class);
-					
-				
+
 					if (ot.getTrangThai() == 1 && result1.getChucVu() == 1) {
 						ot.setTrangThai(4);
 						ot.setMaNguoiDuyet(approve.getId_lead());
@@ -434,16 +433,14 @@ public class YeuCauThietBiController {
 								repoYCTB.save(ot));
 						repoYCTB.save(ot);
 
-					}
-					else if (ot.getTrangThai() == 4 && result1.getChucVu() == 4) {
+					} else if (ot.getTrangThai() == 4 && result1.getChucVu() == 4) {
 						ot.setTrangThai(5);
 						ot.setMaNguoiDuyet(approve.getId_lead());
 						ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success",
 								repoYCTB.save(ot));
 						repoYCTB.save(ot);
 
-					}
-					else if (ot.getTrangThai() == 5 && result1.getChucVu() == 5) {
+					} else if (ot.getTrangThai() == 5 && result1.getChucVu() == 5) {
 						ot.setTrangThai(3);
 						ot.setMaNguoiDuyet(approve.getId_lead());
 						ApiResponse<YeuCauThietBi> resp = new ApiResponse<YeuCauThietBi>(0, "Success",
@@ -451,7 +448,7 @@ public class YeuCauThietBiController {
 						repoYCTB.save(ot);
 
 					}
-					
+
 					else if (ot.getTrangThai() == 3 && result1.getChucVu() == 3) {
 						ot.setTrangThai(2);
 						ot.setMaNguoiDuyet(approve.getId_lead());
@@ -476,8 +473,7 @@ public class YeuCauThietBiController {
 
 				// duyệt list id_đơn sau đó lấy các mã đơn này duyệt trong bảng yêu cầu thiết bị
 				// trạng thái của các đơn nếu đơn có trạng thái = 0 mới cho duyệt
-				
-				
+
 				for (String request_id : approve.getList_id_request()) {
 					// Find request
 					Query q = new Query();
@@ -491,8 +487,7 @@ public class YeuCauThietBiController {
 					System.out.println("api: " + uri1);
 					RestTemplate restTemplate1 = new RestTemplate();
 					User result1 = restTemplate1.getForObject(uri1, User.class);
-					
-					
+
 					System.out.println("chuc vu: " + result1.getChucVu());
 					System.out.println("trang thai: " + ot.getTrangThai());
 					if (ot.getTrangThai() == 1 && result1.getChucVu() == 1) {
@@ -503,8 +498,7 @@ public class YeuCauThietBiController {
 								repoYCTB.save(ot));
 						repoYCTB.save(ot);
 
-					}
-					else if (ot.getTrangThai() == 4 && result1.getChucVu() == 4) {
+					} else if (ot.getTrangThai() == 4 && result1.getChucVu() == 4) {
 						ot.setMaNguoiDuyet(approve.getId_lead());
 						ot.setTrangThai(0);
 						ot.setLyDoTuChoi(approve.getReason());
@@ -512,8 +506,7 @@ public class YeuCauThietBiController {
 								repoYCTB.save(ot));
 						repoYCTB.save(ot);
 
-					}
-					else if (ot.getTrangThai() == 5 && result1.getChucVu() == 5) {
+					} else if (ot.getTrangThai() == 5 && result1.getChucVu() == 5) {
 						ot.setMaNguoiDuyet(approve.getId_lead());
 						ot.setTrangThai(0);
 						ot.setLyDoTuChoi(approve.getReason());
@@ -521,8 +514,7 @@ public class YeuCauThietBiController {
 								repoYCTB.save(ot));
 						repoYCTB.save(ot);
 
-					}
-					else if (ot.getTrangThai() == 3 && result1.getChucVu() == 3) {
+					} else if (ot.getTrangThai() == 3 && result1.getChucVu() == 3) {
 						ot.setMaNguoiDuyet(approve.getId_lead());
 						ot.setTrangThai(0);
 						ot.setLyDoTuChoi(approve.getReason());

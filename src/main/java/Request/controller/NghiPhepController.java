@@ -183,21 +183,19 @@ public class NghiPhepController {
 				String uri = "https://gatewayteam07.herokuapp.com/api/list_staff_manager1/" + array[0].getMaTL();
 				System.out.println(uri);
 				RestTemplate restTemplate = new RestTemplate();
-			
+
 				List_Staff call = restTemplate.getForObject(uri, List_Staff.class);
 				List<String> staff = call.getListstaff();
 
-			
 				if (status_input < 0 || status_input > 2) {
 					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(1, "invalid status", null);
 					return new ResponseEntity<>(resp, HttpStatus.OK);
 				}
-			
+
 				List<NghiPhep> otlst = new ArrayList<NghiPhep>();
 				Query q = new Query();
 				q.addCriteria(Criteria.where("TrangThai").is(status_input));
 				otlst = mongoTemplate.find(q, NghiPhep.class);
-			
 
 				if (otlst.isEmpty()) {
 					ApiResponse<List<NghiPhep_Response>> resp = new ApiResponse<>(0, "Empty data", null);
@@ -401,7 +399,8 @@ public class NghiPhepController {
 			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(0, "Success", wfhlst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Id of this leave does not exist!", null);
+			ApiResponse<List<NghiPhep>> resp = new ApiResponse<List<NghiPhep>>(1, "Id of this leave does not exist!",
+					null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -461,65 +460,48 @@ public class NghiPhepController {
 		long daysDiff = Math.abs(period.getDays());
 		return daysDiff;
 	}
-	
-	public static int getNumberOfDaysInMonth(int year,int month)
-    {
-        YearMonth yearMonthObject = YearMonth.of(year, month);
-        int daysInMonth = yearMonthObject.lengthOfMonth();
-        return daysInMonth;
-    }
-	
+
+	public static int getNumberOfDaysInMonth(int year, int month) {
+		YearMonth yearMonthObject = YearMonth.of(year, month);
+		int daysInMonth = yearMonthObject.lengthOfMonth();
+		return daysInMonth;
+	}
+
 	// nhân viên yêu cầu nghỉ phép
 	@PostMapping("/request_nghiphep")
 	public ResponseEntity<ApiResponse<NghiPhep>> Request_nghiphep(@RequestBody NghiPhep np) {
 		try {
-			
-			LocalDate localDate = LocalDate.now();
-//			System.out.println(localDate);
-//			
-//			System.out.println("ss nbd: " + np.getNgayBatDau().compareTo(localDate));
-//			System.out.println("ss nkt: " + np.getNgayKetThuc().compareTo(localDate));
-//			LocalTime localTime = LocalTime.now();
-//			
-//			(ot.getNgayOT().isBefore(LocalDate.now()) && ot.getNgayOT().getMonth() != LocalDate.now().getMonth()) 
-//			|| (ot.getNgayOT().isAfter(LocalDate.now()) && ot.getNgayOT().getYear() != LocalDate.now().getYear())
-			
-			//&& np.getNgayBatDau().getMonth() >= LocalDate.now().getMonth() 
-			
+
+			// check nhân viên tồn tại
+			final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
+			RestTemplate restTemplate = new RestTemplate();
+			User result = restTemplate.getForObject(uri, User.class);
+
+			// check xem nhân viên này có đơn nào chưa duyệt hay ko?
+			List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
+					.addCriteria(Criteria.where("TrangThai").is(0));
+			wfhlst = mongoTemplate.find(q, NghiPhep.class);
+			System.out.println("rong hay k tren: " + wfhlst.isEmpty());
+
 			System.out.println("month: " + np.getNgayBatDau().getMonth());
 			System.out.println("month: " + LocalDate.now().getMonth());
-			
+
 			System.out.println("ngay cua thang : " + np.getNgayBatDau().getDayOfMonth());
-			System.out.println("so ngay cua thang : " + getNumberOfDaysInMonth(np.getNgayBatDau().getYear(), np.getNgayBatDau().getMonthValue()));
-			
-			
-			
-			if(np.getNgayBatDau().getYear() >= LocalDate.now().getYear() && np.getNgayKetThuc().getYear() >= LocalDate.now().getYear() //check nam 
-			   && np.getNgayBatDau().getMonthValue() ==  LocalDate.now().getMonthValue() && np.getNgayKetThuc().getMonthValue() >=  LocalDate.now().getMonthValue() //check thang
-			    //check ngay bat dau thi phai nam trong thang va ngay ket thuc lon hon ngay bat dau
-			   && np.getNgayKetThuc().getDayOfMonth() > np.getNgayBatDau().getDayOfMonth()) {
-		
-				List<NghiPhep> wfhlst = new ArrayList<NghiPhep>();
-				Query q = new Query();
-				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
-				q.addCriteria(Criteria.where("MaNhanVien").is(np.getMaNhanVien()))
-						.addCriteria(Criteria.where("TrangThai").is(0));
-				wfhlst = mongoTemplate.find(q, NghiPhep.class);
-				System.out.println("rong hay k tren: " + wfhlst.isEmpty());
+			System.out.println("so ngay cua thang : "
+					+ getNumberOfDaysInMonth(np.getNgayBatDau().getYear(), np.getNgayBatDau().getMonthValue()));
 
-				// goi service user de lay infor nhanvien
-				final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + np.getMaNhanVien();
-				RestTemplate restTemplate = new RestTemplate();
-				User result = restTemplate.getForObject(uri, User.class);
+			if (np.getNgayBatDau().getYear() >= LocalDate.now().getYear()
+					&& np.getNgayKetThuc().getYear() >= LocalDate.now().getYear() // check nam
+					&& np.getNgayBatDau().getMonthValue() == LocalDate.now().getMonthValue()
+					&& np.getNgayKetThuc().getMonthValue() >= LocalDate.now().getMonthValue() // check thang
+					// check ngay bat dau thi phai nam trong thang va ngay ket thuc lon hon ngay bat
+					// dau
+					&& np.getNgayKetThuc().getDayOfMonth() > np.getNgayBatDau().getDayOfMonth()) {
 
-				System.out.println("uri: " + uri);
-				System.out.println("result: " + result);
-				System.out.println("rong hay k: " + wfhlst.isEmpty());
-				System.out.println("so phep con lai: " + result.getSoPhepConLai());
-
-				System.out.println(result.getID());
-				System.out.println(wfhlst.isEmpty());
-				if (wfhlst.isEmpty() == true && result.getSoPhepConLai() >= 1)  {// can them dieu kien la so php con lai phai
+				if (wfhlst.isEmpty() == true && result.getSoPhepConLai() >= 1) {// can them dieu kien la so php con lai
+																				// phai
 																				// >=1
 					System.out.println("khong co thang nhan vien nay");
 					np.setID(UUID.randomUUID().toString());
@@ -529,8 +511,9 @@ public class NghiPhepController {
 					return new ResponseEntity<>(resp, HttpStatus.CREATED);
 				}
 			}
-			
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or input date wrong!", null);
+
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or input date wrong!",
+					null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
 			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Failure!", null);

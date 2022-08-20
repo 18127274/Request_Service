@@ -182,7 +182,20 @@ public class WFHController {
 	@PostMapping("/request_wfh")
 	public ResponseEntity<ApiResponse<WFH>> Request_wfh(@RequestBody WFH wfh) {
 		try {
-			// check xem nhân viên này có đơn nào đang chưa được duyệt hay không?
+			// check Nhân viên tồn tại hay k?
+			// goi service user de lay infor nhanvien
+			final String uri = "https://userteam07.herokuapp.com/api/staff_nghiphep/" + wfh.getMaNhanVien();
+			RestTemplate restTemplate = new RestTemplate();
+			User result = restTemplate.getForObject(uri, User.class);
+			
+			// check xem thằng nhân viên này đã có đơn nào chưa được duyệt hay chưa 
+			List<WFH> wfhlst = new ArrayList<WFH>();
+			Query q = new Query();
+			q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
+					.addCriteria(Criteria.where("TrangThai").is(0));
+			wfhlst = mongoTemplate.find(q, WFH.class);
+			
+			
 			
 			LocalDate localDate = LocalDate.now();
 			System.out.println(localDate);
@@ -194,16 +207,10 @@ public class WFHController {
 			if(wfh.getNgayBatDau().getYear() >= LocalDate.now().getYear() && wfh.getNgayKetThuc().getYear() >= LocalDate.now().getYear() //check nam 
 					   && wfh.getNgayBatDau().getMonthValue() ==  LocalDate.now().getMonthValue() && wfh.getNgayKetThuc().getMonthValue() >=  LocalDate.now().getMonthValue() //check thang
 					    //check ngay bat dau thi phai nam trong thang va ngay ket thuc lon hon ngay bat dau
-					   && wfh.getNgayKetThuc().getDayOfMonth() > wfh.getNgayBatDau().getDayOfMonth()) {
-				List<WFH> wfhlst = new ArrayList<WFH>();
-				Query q = new Query();
-				// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
-				q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()))
-						.addCriteria(Criteria.where("TrangThai").is(0));
-				wfhlst = mongoTemplate.find(q, WFH.class);
+					   && wfh.getNgayKetThuc().getDayOfMonth() > wfh.getNgayBatDau().getDayOfMonth() 
+					   && result.getID() != "") {
+				
 
-				System.out.println(wfh.getMaNhanVien());
-				System.out.println(wfhlst.isEmpty());
 				if (wfhlst.isEmpty() == true) {
 					System.out.println("khong co thang nhan vien nay");
 					wfh.setID(UUID.randomUUID().toString());
@@ -214,12 +221,12 @@ public class WFHController {
 				}
 			}
 			
-			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "You was have petition or input date wrong!", null);
+			ApiResponse<WFH> resp = new ApiResponse<WFH>(1, "You was have petition or id staff or input date wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 
 		catch (Exception e) {
-			ApiResponse<WFH> resp1 = new ApiResponse<>(1, "You was have petition or input date wrong!", null);
+			ApiResponse<WFH> resp1 = new ApiResponse<>(1, "You was have petition or id staff or date wrong!", null);
 			return new ResponseEntity<>(resp1, HttpStatus.OK);
 		}
 	}
