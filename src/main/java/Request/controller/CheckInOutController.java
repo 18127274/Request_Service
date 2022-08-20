@@ -65,13 +65,14 @@ public class CheckInOutController {
 			repoCheckIn.findAll(Sort.by(Sort.Direction.DESC, "GioBatDau")).forEach(checklist::add);
 
 			if (checklist.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+				ApiResponse<List<Check_in_out>> resp = new ApiResponse<>(0, "No content", checklist);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 
 			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(0, "Success", checklist);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(1, "Empty data!", null);
+			ApiResponse<List<Check_in_out>> resp = new ApiResponse<>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -84,7 +85,9 @@ public class CheckInOutController {
 			List<Check_in_out> checklst = new ArrayList<Check_in_out>();
 			repoCheckIn.findAll(Sort.by(Sort.Direction.DESC, "GioBatDau")).forEach(checklst::add);
 			if (checklst.isEmpty()) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+				CheckIn_Response temp = new CheckIn_Response();
+				ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(0, "No content", temp);
+				return new ResponseEntity<>(resp, HttpStatus.OK);
 			}
 			long monthhour = 0;
 			List<Check_in_out> monthlist = new ArrayList<>();
@@ -111,7 +114,7 @@ public class CheckInOutController {
 			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(0, "Success", result);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(1, "Empty data!", null);
+			ApiResponse<CheckIn_Response> resp = new ApiResponse<CheckIn_Response>(1, "Internal error", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
@@ -134,8 +137,8 @@ public class CheckInOutController {
 			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(0, "Success", checklst);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		} catch (Exception e) {
-			ApiResponse<List<Check_in_out>> resp = new ApiResponse<List<Check_in_out>>(1, "Empty data!", null);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			ApiResponse<List<Check_in_out>> resp = new ApiResponse<>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
@@ -169,8 +172,8 @@ public class CheckInOutController {
 			ApiResponse<Check_in_out> resp = new ApiResponse<>(1, "Not checkin yet", null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(1, "Empty data!", null);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			ApiResponse<Check_in_out> resp = new ApiResponse<>(1, "Internal error", null);
+			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		}
 	}
 
@@ -201,8 +204,7 @@ public class CheckInOutController {
 			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(0, "Success", _check_in);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			ApiResponse<Check_in_out> resp = new ApiResponse<Check_in_out>(1, "Empty data!", null);
-			return new ResponseEntity<>(resp, HttpStatus.OK);
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
