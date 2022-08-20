@@ -264,7 +264,7 @@ public class OTController {
 		try {
 			List<OT> wfhlst = new ArrayList<OT>();
 			Query q = new Query();
-			
+			ot.setNgayOT(ot.getNgayOT().plusDays(1));
 			// q.addCriteria(Criteria.where("MaNhanVien").is(wfh.getMaNhanVien()));
 			q.addCriteria(Criteria.where("MaNhanVien").is(ot.getMaNhanVien()))
 					.addCriteria(Criteria.where("TrangThai").is(0));
