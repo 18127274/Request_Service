@@ -512,11 +512,11 @@ public class NghiPhepController {
 				}
 			}
 
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or input date wrong!",
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or id staff or input date wrong!",
 					null);
 			return new ResponseEntity<>(resp, HttpStatus.CREATED);
 		} catch (Exception e) {
-			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "Failure!", null);
+			ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(1, "You was have petition or id staff or input date wrong!", null);
 			return new ResponseEntity<>(resp, HttpStatus.OK);
 		}
 	}
