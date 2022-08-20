@@ -207,8 +207,8 @@ public class WFHController {
 				if (wfhlst.isEmpty() == true) {
 					System.out.println("khong co thang nhan vien nay");
 					wfh.setID(UUID.randomUUID().toString());
-					WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau(),
-							wfh.getNgayKetThuc(), wfh.getLyDo(), "", 0));
+					WFH _wfh = repoWFH.save(new WFH(wfh.getID(), "", wfh.getMaNhanVien(), wfh.getNgayBatDau().plusDays(1),
+							wfh.getNgayKetThuc().plusDays(1), wfh.getLyDo(), "", 0));
 					ApiResponse<WFH> resp = new ApiResponse<WFH>(0, "Success", _wfh);
 					return new ResponseEntity<>(resp, HttpStatus.CREATED);
 				}

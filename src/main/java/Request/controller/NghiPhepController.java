@@ -524,7 +524,7 @@ public class NghiPhepController {
 					System.out.println("khong co thang nhan vien nay");
 					np.setID(UUID.randomUUID().toString());
 					NghiPhep _np = repoNP.save(new NghiPhep(np.getID(), "", np.getMaNhanVien(), np.getLoaiNghiPhep(),
-							np.getNgayBatDau(), np.getNgayKetThuc(), np.getLyDo(), "", 0));
+							np.getNgayBatDau().plusDays(1), np.getNgayKetThuc().plusDays(1), np.getLyDo(), "", 0));
 					ApiResponse<NghiPhep> resp = new ApiResponse<NghiPhep>(0, "Success", _np);
 					return new ResponseEntity<>(resp, HttpStatus.CREATED);
 				}
